@@ -1,9 +1,14 @@
 ﻿namespace KyberNET.Constants
 {
-    public static class PrecomputedTables
+    using System;
+
+    internal static class PrecomputedTables
     {
-        public static readonly int[] Zetas =
-        [
+        /// <summary>
+        /// Precalculated (Zeta) values according to formula <code>17^reverse_bits(n) mod Q</code>, then converted to Montgomery Form
+        /// </summary>
+        public static readonly ReadOnlyMemory<int> Zetas = new int[]
+        {
             1, 2571, 2970, 1812, 1493, 1422, 287, 202,
             3158, 622, 1577, 182, 962, 2127, 1855, 1468,
             573, 2004, 264, 383, 2500, 1458, 1727, 3199,
@@ -20,10 +25,13 @@
             2114, 3193, 1218, 1994, 2455, 220, 2142, 1670,
             2144, 1799, 2051, 794, 1819, 2475, 2459, 478,
             3221, 3021, 996, 991, 958, 1869, 1522, 1628
-        ];
+        };
 
-        public static readonly int[] Gammas =
-        [
+        /// <summary>
+        /// Precalculated (Gamma) values according to formula <code>17^reverse_bits(n) mod Q</code>, then converted to Montgomery Form
+        /// </summary>
+        public static readonly ReadOnlyMemory<int> Gammas = new int[]
+        {
             2226, 1103, 430, 2899, 555, 2774, 843, 2486,
             2078, 1251, 871, 2458, 1550, 1779, 105, 3224,
             422, 2907, 587, 2742, 177, 3152, 3094, 235,
@@ -40,6 +48,6 @@
             1819, 1510, 2475, 854, 2459, 870, 478, 2851,
             3221, 108, 3021, 308, 996, 2333, 991, 2338,
             958, 2371, 1869, 1460, 1522, 1807, 1628, 1701
-        ];
+        };
     }
 }
