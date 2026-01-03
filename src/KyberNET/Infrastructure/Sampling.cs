@@ -1,67 +1,70 @@
 namespace KyberNET.Infrastructure
 {
     using System;
-    using System.Security.Cryptography;
-    using Constants;
-    
+    using KyberNET.Constants;
+    using KyberNET.Hashing;
+
     public static class Sampling
     {
         // SHAKE-256 (seed || nonce)
         public static byte[] Prf(int eta, ReadOnlySpan<byte> seed, byte nonce)
         {
-            // TODO #13: Find native cross-platform alternative
-            if (!Shake256.IsSupported)
-            {
-                throw new NotSupportedException("SHAKE-256 is not supported on the client platform");
-            }
-            
             var outputLength = (KyberConstants.N >> 2) * eta;
-            var output = new byte[outputLength];
 
-            Span<byte> input = stackalloc byte[seed.Length + 1];
+            // build input = seed || nonce
+            var input = new byte[seed.Length + 1];
             seed.CopyTo(input);
             input[^1] = nonce;
 
-            using var shake = new Shake256();
-            shake.AppendData(input);
-            shake.GetHashAndReset(output);
-
-            return output;
+            // SHAKE256 with variable output length (XOF)
+            var shake = new SHAKE256(outputLength);
+            
+            return shake.Digest(input);
         }
-        
-        // SHAKE-128 (seed || i || j)
+
+        // SHAKE-128 (seed || i || j) -> byte stream
         public sealed class Shake128Stream
         {
-            private readonly Shake128 shake;
-            private readonly byte[] buffer = new byte[168];
-            private int position = 168;
+            private readonly HashOutputStream @out;
+            private readonly byte[] buffer;
+            private int position;
 
             public Shake128Stream(ReadOnlySpan<byte> seed, byte b1, byte b2)
             {
-                shake = new Shake128();
-                Span<byte> first = stackalloc byte[seed.Length + 2];
-                seed.CopyTo(first);
-                first[^2] = b1;
-                first[^1] = b2;
-                shake.AppendData(first);
+                // build input = seed || b1 || b2
+                var input = new byte[seed.Length + 2];
+                seed.CopyTo(input);
+                input[^2] = b1;
+                input[^1] = b2;
+
+                // create XOF output stream
+                var inStream = SHAKE128.NewInputStream();
+                inStream.Write(input);
+                @out = inStream.Close();
+
+                // buffer sized to SHAKE128 rate
+                buffer = new byte[KeccakParameter.SHAKE_128.BYTERATE]; // 168
+                position = buffer.Length; // force fill on first Next()
             }
 
             public byte Next()
             {
-                if (position >= buffer.Length)
+                if (position < buffer.Length)
                 {
-                    shake.GetHashAndReset(buffer);
-                    position = 0;
+                    return buffer[position++];
                 }
+                
+                @out.NextBytes(buffer);
+                position = 0;
 
                 return buffer[position++];
             }
         }
 
         public static Shake128Stream Xof(ReadOnlySpan<byte> seed, byte b1, byte b2)
-            => new Shake128Stream(seed, b1, b2);
+            => new(seed, b1, b2);
 
-        // Uniform sampling from the spec
+        // uniform sampling according to the spec
         public static int[] SampleNTT(Shake128Stream stream)
         {
             var coeffs = new int[KyberConstants.N];
@@ -107,9 +110,9 @@ namespace KyberNET.Infrastructure
                 for (var j = 0; j < eta; j++)
                 {
                     x += bits[(2 * i * eta) + j].ToInt();
-                    y = bits[(2 * i * eta) + eta + j].ToInt();
+                    y += bits[(2 * i * eta) + eta + j].ToInt();
                 }
-                
+
                 f[i] = ModMath.ToMontgomeryForm(x - y);
             }
 
