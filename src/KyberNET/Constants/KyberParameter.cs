@@ -47,11 +47,11 @@ namespace KyberNET.Constants
 
         public static KyberParameter FindByCipherTextSize(int length)
         {
-            foreach (var @param in All)
+            foreach (var param in All)
             {
-                if (@param.CiphertextLength == length)
+                if (param.CiphertextLength == length)
                 {
-                    return @param;
+                    return param;
                 }
             }
 
@@ -60,11 +60,11 @@ namespace KyberNET.Constants
 
         public static KyberParameter FindByEncryptionKeySize(int length)
         {
-            foreach (var @param in All)
+            foreach (var param in All)
             {
-                if (@param.EncapsulationKeyLength == length)
+                if (param.EncapsulationKeyLength == length)
                 {
-                    return @param;
+                    return param;
                 }
             }
 
