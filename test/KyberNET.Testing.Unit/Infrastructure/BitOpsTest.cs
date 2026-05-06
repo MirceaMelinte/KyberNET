@@ -7,6 +7,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
     {
         [TestClass]
         public class BitsToBytes
+            : BitOpsTest
         {
             [TestMethod, TestCategory("BitOps"), TestCategory("BitsToBytes")]
             public void ReturnsByteArrayOnBoolArrayInput()
@@ -30,6 +31,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class BytesToBits
+            : BitOpsTest
         {
             [TestMethod, TestCategory("BitOps"), TestCategory("BytesToBits")]
             public void ReturnsBoolArrayOnByteArrayInput()
@@ -54,6 +56,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class ToInt
+            : BitOpsTest
         {
             [TestMethod, TestCategory("BitOps"), TestCategory("ToInt")]
             public void ReturnsZeroWhenBoolIsFalse()

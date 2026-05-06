@@ -8,6 +8,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
     {
         [TestClass]
         public class BarrettReduce
+            : ModMathTest
         {
             [TestMethod, TestCategory("ModMath"), TestCategory("BarrettReduce")]
             public void ReturnsZeroWhenInputZero()
@@ -84,6 +85,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class MontgomeryReduce
+            : ModMathTest
         {
             [TestMethod, TestCategory("ModMath"), TestCategory("MontgomeryReduce")]
             public void ReturnsZeroWhenInputZero()
@@ -152,6 +154,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class ToMontgomeryForm
+            : ModMathTest
         {
             [TestMethod, TestCategory("ModMath"), TestCategory("ToMontgomeryForm")]
             public void ReturnsZeroWhenInputZero()
@@ -230,6 +233,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class ProductOf
+            : ModMathTest
         {
             [TestMethod, TestCategory("ModMath"), TestCategory("ProductOf")]
             public void ReturnsZeroWhenOneInputZero()
@@ -267,6 +271,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class IsModuloOfQ
+            : ModMathTest
         {
             [TestMethod, TestCategory("ModMath"), TestCategory("IsModuloOfQ")]
             public void ReturnsTrueWhenNLessThanQ()

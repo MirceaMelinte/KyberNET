@@ -1,8 +1,8 @@
 namespace KyberNET.Infrastructure
 {
     using System;
-    using KyberNET.Constants;
-    using KyberNET.Hashing;
+    using Constants;
+    using Hashing;
 
     public static class Sampling
     {

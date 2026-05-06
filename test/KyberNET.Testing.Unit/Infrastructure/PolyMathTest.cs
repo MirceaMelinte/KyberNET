@@ -9,6 +9,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
     {
         [TestClass]
         public class VectorAdd
+            : PolyMathTest
         {
             [TestMethod, TestCategory("PolyMath"), TestCategory("VectorAdd")]
             public void ReturnsCorrectSumWhenVectorsOfSameLength()
@@ -84,6 +85,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class ToMontgomeryVector
+            : PolyMathTest
         {
             [TestMethod, TestCategory("PolyMath"), TestCategory("ToMontgomeryVector")]
             public void ReturnsValuesInMontgomeryForm()
@@ -105,6 +107,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class FromMontgomeryVector
+            : PolyMathTest
         {
             [TestMethod, TestCategory("PolyMath"), TestCategory("FromMontgomeryVector")]
             public void ReturnsValuesReducedFromMontgomeryForm()
@@ -126,6 +129,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class Ntt
+            : PolyMathTest
         {
             [TestMethod, TestCategory("PolyMath"), TestCategory("Ntt")]
             public void ReturnsZeroVectorWhenInputZeroVector()
@@ -143,6 +147,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class InverseNtt
+            : PolyMathTest
         {
             [TestMethod, TestCategory("PolyMath"), TestCategory("InverseNtt")]
             public void ReturnsZeroVectorWhenInputZeroVector()
@@ -160,6 +165,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class MultiplyNtts
+            : PolyMathTest
         {
             [TestMethod, TestCategory("PolyMath"), TestCategory("MultiplyNtts")]
             public void ReturnsZeroVectorWhenOneInputZeroVector()
@@ -181,6 +187,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class NttMatrixVectorDot
+            : PolyMathTest
         {
             [TestMethod, TestCategory("PolyMath"), TestCategory("NttMatrixVectorDot")]
             public void ReturnsZeroMatrixWhenMatrixAndVectorZero()

@@ -8,6 +8,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
     {
         [TestClass]
         public class Decompress
+            : EncodingTest
         {
             [TestMethod, TestCategory("Encoding"), TestCategory("Decompress")]
             public void DecompressesZeroToZero()
@@ -74,6 +75,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class FastByteDecodeAndByteEncodeInto
+            : EncodingTest
         {
             [TestMethod, TestCategory("Encoding"), TestCategory("FastByteDecode")]
             public void RoundTrips12BitCoefficients()
@@ -168,6 +170,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class CompressAndEncodeIntoTest
+            : EncodingTest
         {
             [TestMethod, TestCategory("Encoding"), TestCategory("CompressAndEncodeInto")]
             public void CompressesZeroToZero()
@@ -206,6 +209,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class ExpandMuseTest
+            : EncodingTest
         {
             [TestMethod, TestCategory("Encoding"), TestCategory("ExpandMuse")]
             public void AllZeroBytesProducesAllZeros()
@@ -279,6 +283,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class VectorToMontVectorTest
+            : EncodingTest
         {
             [TestMethod, TestCategory("Encoding"), TestCategory("VectorToMontVector")]
             public void ConvertsZeroToZero()
@@ -333,6 +338,7 @@ namespace KyberNET.Testing.Unit.Infrastructure
 
         [TestClass]
         public class MultiplyNttsWithOffset
+            : EncodingTest
         {
             [TestMethod, TestCategory("PolyMath"), TestCategory("MultiplyNtts")]
             public void OffsetZeroMatchesNoOffsetOverload()
