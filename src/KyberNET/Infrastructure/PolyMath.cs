@@ -126,23 +126,27 @@ namespace KyberNET.Infrastructure
         }
 
         // NTT Point-wise multiplication
-        public static int[] MultiplyNtts(int[] ntt1, int[] ntt2)
+        public static int[] MultiplyNtts(int[] ntt1, int[] ntt2)        {
+            return MultiplyNtts(ntt1, ntt2, 0);
+        }
+
+        public static int[] MultiplyNtts(int[] ntt1, int[] ntt2, int offset1)
         {
             var output = new int[KyberConstants.N];
 
             for (var i = 0; i < KyberConstants.N >> 1; i++)
             {
                 // 4 Montgomery multiplications per pair
-                var x = ModMath.ProductOf(ntt1[2 * i], ntt2[2 * i]);
-                var y =  ModMath.ProductOf(ntt1[2 * i + 1], ntt2[2 * i + 1]);
+                var a = i << 1;
+                var b = a + 1;
 
-                output[2 * i] = ModMath.BarrettReduce(x + ModMath.ProductOf(y, PrecomputedTables.Gammas.Span[i]));
+                var x = ModMath.ProductOf(ntt1[a + offset1], ntt2[a]);
+                var y = ModMath.ProductOf(ntt1[b + offset1], ntt2[b]);
 
-                output[2 * i + 1] = ModMath.BarrettReduce(
-                    ModMath.ProductOf(
-                        ntt1[2 * i] + ntt1[2 * i + 1],
-                        ntt2[2 * i] + ntt2[2 * i + 1])
-                    - x - y);
+                output[a] = ModMath.ProductOf(y, PrecomputedTables.Gammas.Span[i]) + x;
+                output[b] = ModMath.ProductOf(
+                    ntt1[a + offset1] + ntt1[b + offset1],
+                    ntt2[a] + ntt2[b]) - x - y;
             }
 
             return output;
