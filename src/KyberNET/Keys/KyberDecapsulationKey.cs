@@ -5,6 +5,7 @@ namespace KyberNET.Keys
     using Constants;
     using Exceptions;
     using Hashing;
+    using Internal;
 
     public sealed class KyberDecapsulationKey
     {
@@ -53,6 +54,8 @@ namespace KyberNET.Keys
                 return output;
             }
         }
+        
+        public byte[] Decapsulate(KyberCipherText cipherText) => KyberAgreement.Decapsulate(this, cipherText);
 
         public static KyberDecapsulationKey FromBytes(byte[] bytes)
         {
