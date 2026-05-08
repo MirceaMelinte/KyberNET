@@ -8,6 +8,7 @@ namespace KyberNET.Keys
     using Internal;
 
     public sealed class KyberDecapsulationKey
+        : IKyberKEMKey
     {
         internal KyberDecryptionKey Key { get; }
         internal KyberEncryptionKey EncryptionKey { get; }
@@ -15,6 +16,8 @@ namespace KyberNET.Keys
         internal byte[] RandomSeed { get; }
         
         public KyberParameter Parameter { get; }
+        
+        IKyberPKEKey IKyberKEMKey.Key => Key;
 
         internal KyberDecapsulationKey(KyberDecryptionKey key, KyberEncryptionKey encryptionKey, byte[] hash, byte[] randomSeed)
         {

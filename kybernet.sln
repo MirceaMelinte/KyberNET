@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KyberNET.Testing.Unit", "te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KyberNET.Testing.Benchmark", "test\KyberNET.Testing.Benchmark\KyberNET.Testing.Benchmark.csproj", "{B02C1032-908C-44B0-8824-A67E37AEF444}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KyberNET.Testing.Integration", "test\KyberNET.Testing.Integration\KyberNET.Testing.Integration.csproj", "{73CE1014-BC3C-44CE-A62F-7D7AA5B5DAE5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,10 +39,15 @@ Global
 		{B02C1032-908C-44B0-8824-A67E37AEF444}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B02C1032-908C-44B0-8824-A67E37AEF444}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B02C1032-908C-44B0-8824-A67E37AEF444}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73CE1014-BC3C-44CE-A62F-7D7AA5B5DAE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73CE1014-BC3C-44CE-A62F-7D7AA5B5DAE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73CE1014-BC3C-44CE-A62F-7D7AA5B5DAE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73CE1014-BC3C-44CE-A62F-7D7AA5B5DAE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0AA7A138-ECE9-4631-A7EC-FD394EA47B25} = {18FC6C25-F5DF-4933-BE3B-F76EA25DE611}
 		{2E8C0FB0-DC59-4948-AD4F-2DA10EA54B83} = {A7404255-EF38-4A1C-9557-015BAC830696}
 		{B02C1032-908C-44B0-8824-A67E37AEF444} = {A7404255-EF38-4A1C-9557-015BAC830696}
+		{73CE1014-BC3C-44CE-A62F-7D7AA5B5DAE5} = {A7404255-EF38-4A1C-9557-015BAC830696}
 	EndGlobalSection
 EndGlobal

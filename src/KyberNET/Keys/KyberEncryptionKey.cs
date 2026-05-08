@@ -6,6 +6,7 @@ namespace KyberNET.Keys
     using Infrastructure;
 
     public sealed class KyberEncryptionKey
+        : IKyberPKEKey
     {
         public KyberParameter Parameter { get; }
         

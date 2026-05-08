@@ -4,8 +4,11 @@ namespace KyberNET.Keys
     using Internal;
     
     public sealed class KyberEncapsulationKey
+        : IKyberKEMKey
     {
         internal KyberEncryptionKey Key { get; }
+        
+        IKyberPKEKey IKyberKEMKey.Key => Key;
 
         internal KyberEncapsulationKey(KyberEncryptionKey key)
         {
