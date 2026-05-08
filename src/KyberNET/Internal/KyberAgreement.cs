@@ -1,7 +1,6 @@
 namespace KyberNET.Internal
 {
     using System;
-    using System.Linq;
     using Constants;
     using Hashing;
     using Infrastructure;
@@ -133,7 +132,7 @@ namespace KyberNET.Internal
 
         internal static KyberEncapsulationResult Encapsulate(KyberEncapsulationKey encapsulationKey, byte[] plainText)
         {
-            if (plainText.All(b => b == 0))
+            if (Subtle.IsAllZero(plainText))
             {
                 throw new RandomBitGenerationException();
             }
@@ -179,10 +178,8 @@ namespace KyberNET.Internal
             Array.Clear(recoveredPlainText);
             Array.Clear(decapsulationHash);
 
-            if (!cipherText.FullBytes.SequenceEqual(regeneratedCipherText.FullBytes))
-            {
-                secretKeyCandidate = secretKeyRejection;
-            }
+            var condition = Subtle.Compare(cipherText.FullBytes, regeneratedCipherText.FullBytes);
+            secretKeyCandidate = Subtle.Select(condition, secretKeyCandidate, secretKeyRejection);
 
             return secretKeyCandidate;
         }

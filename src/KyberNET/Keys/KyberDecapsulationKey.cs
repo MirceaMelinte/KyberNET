@@ -1,10 +1,10 @@
 namespace KyberNET.Keys
 {
     using System;
-    using System.Linq;
     using Constants;
     using Exceptions;
     using Hashing;
+    using Infrastructure;
     using Internal;
 
     /// <summary>
@@ -33,11 +33,11 @@ namespace KyberNET.Keys
             RandomSeed = (byte[])randomSeed.Clone();
             Parameter = key.Parameter;
 
-            var encapsulationKeyHash = new SHA3_256().Digest(encryptionKey.FullBytes);
+            var encryptionKeyHash = new SHA3_256().Digest(encryptionKey.FullBytes);
 
-            if (!encapsulationKeyHash.SequenceEqual(hash))
+            if (Subtle.Compare(encryptionKeyHash, hash) != 0)
             {
-                throw new InvalidKyberKeyException("Hash check failed! Invalid decapsulation key");
+                throw new InvalidKyberKeyException("Hash check failed! Invalid descapsulation key");
             }
         }
 
