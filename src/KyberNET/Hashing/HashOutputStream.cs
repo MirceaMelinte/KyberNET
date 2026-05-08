@@ -2,7 +2,7 @@ namespace KyberNET.Hashing
 {
     using System;
 
-    public class HashOutputStream
+    internal class HashOutputStream
     {
         private KeccakParameter PARAMETER { get; }
 

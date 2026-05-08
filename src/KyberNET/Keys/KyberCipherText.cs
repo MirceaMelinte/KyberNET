@@ -3,10 +3,16 @@ namespace KyberNET.Keys
     using System;
     using Constants;
 
+    /// <summary>
+    /// An ML-KEM ciphertext produced by encapsulation
+    /// </summary>
     public sealed class KyberCipherText
     {
+        /// <summary>
+        /// The ML-KEM parameter set this ciphertext belongs to
+        /// </summary>
         public KyberParameter Parameter { get; }
-        
+
         internal byte[] EncodedCoefficients { get; }
         internal byte[] EncodedTerms { get; }
 
@@ -17,6 +23,23 @@ namespace KyberNET.Keys
             EncodedTerms = (byte[])encodedTerms.Clone();
         }
 
+        /// <summary>
+        /// Returns a copy of the serialized ciphertext bytes.
+        /// Each access allocates a new array.
+        /// Capture in a local variable declaration to avoid repeated allocations.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// // Bad: allocates twice
+        /// hash.Update(cipherText.FullBytes);
+        /// store.Save(cipherText.FullBytes);
+        ///
+        /// // Good: allocates once
+        /// var ctBytes = cipherText.FullBytes;
+        /// hash.Update(ctBytes);
+        /// store.Save(ctBytes);
+        /// </code>
+        /// </example>
         public byte[] FullBytes
         {
             get
@@ -30,6 +53,9 @@ namespace KyberNET.Keys
             }
         }
 
+        /// <summary>
+        /// Deserializes a ciphertext from byte representation
+        /// </summary>
         public static KyberCipherText FromBytes(byte[] bytes)
         {
             var parameter = KyberParameter.FindByCipherTextSize(bytes.Length);

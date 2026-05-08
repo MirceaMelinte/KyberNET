@@ -3,7 +3,7 @@ namespace KyberNET.Infrastructure
     using System;
     using Constants;
 
-    public static class Encoding
+    internal static class Encoding
     {
         public static void Decompress(int[] coefficients, int bitSize)
         {

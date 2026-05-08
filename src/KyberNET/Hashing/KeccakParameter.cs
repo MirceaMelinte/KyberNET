@@ -1,6 +1,6 @@
 namespace KyberNET.Hashing
 {
-    public sealed class KeccakParameter
+    internal sealed class KeccakParameter
     {   
         private KeccakParameter(int minLength, int maxLength, int bitrate, int capacity, FlexiByte suffix)
         {

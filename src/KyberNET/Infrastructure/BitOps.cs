@@ -5,7 +5,7 @@ namespace KyberNET.Infrastructure
     /// <summary>
     /// Bit <-> byte marshalling to be used by the Kyber encoder/decoder
     /// </summary>
-    public static class BitOps
+    internal static class BitOps
     {
         public static int ToInt(this bool b) => b ? 1 : 0;
 

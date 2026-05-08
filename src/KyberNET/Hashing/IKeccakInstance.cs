@@ -1,6 +1,6 @@
 namespace KyberNET.Hashing
 {
-    public interface IKeccakInstance
+    internal interface IKeccakInstance
     {
         KeccakParameter Parameter { get; }
     }

@@ -4,7 +4,7 @@ namespace KyberNET.Keys
     using Exceptions;
     using Infrastructure;
 
-    public sealed class KyberDecryptionKey
+    internal sealed class KyberDecryptionKey
         : IKyberPKEKey
     {
         public KyberParameter Parameter { get; }

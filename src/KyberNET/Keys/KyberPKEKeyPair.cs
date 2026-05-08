@@ -1,6 +1,6 @@
 namespace KyberNET.Keys
 {
-    public sealed class KyberPKEKeyPair
+    internal sealed class KyberPKEKeyPair
     {
         public KyberEncryptionKey EncryptionKey { get; }
         public KyberDecryptionKey DecryptionKey { get; }

@@ -8,6 +8,7 @@
     <ItemGroup>
         <InternalsVisibleTo Include="KyberNET.Testing.Unit" />
         <InternalsVisibleTo Include="KyberNET.Testing.Integration" />
+        <InternalsVisibleTo Include="KyberNET.Testing.Benchmark" />
     </ItemGroup>
 
 </Project>

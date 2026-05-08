@@ -8,8 +8,14 @@ namespace KyberNET
     using Infrastructure;
     using Keys;
 
+    /// <summary>
+    /// Generates ML-KEM key pairs for a given parameter set
+    /// </summary>
     public static class KyberKeyGenerator
     {
+        /// <summary>
+        /// Generates a new ML-KEM key pair for the specified parameter set
+        /// </summary>
         public static KyberKEMKeyPair Generate(KyberParameter parameter, IRandomProvider? randomProvider = null)
         {
             var randomSeed = new byte[KyberConstants.N_BYTES];

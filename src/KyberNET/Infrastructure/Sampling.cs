@@ -4,7 +4,7 @@ namespace KyberNET.Infrastructure
     using Constants;
     using Hashing;
 
-    public static class Sampling
+    internal static class Sampling
     {
         // SHAKE-256 (seed || nonce)
         public static byte[] Prf(int eta, ReadOnlySpan<byte> seed, byte nonce)

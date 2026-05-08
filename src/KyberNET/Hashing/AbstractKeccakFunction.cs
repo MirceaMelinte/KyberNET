@@ -1,6 +1,6 @@
 namespace KyberNET.Hashing
 {
-    public abstract class AbstractKeccakFunction(int initialCapacity)
+    internal abstract class AbstractKeccakFunction(int initialCapacity)
         : IKeccakInstance
     {
         private readonly UniversalDigestor digestor = new(initialCapacity);

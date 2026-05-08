@@ -3,11 +3,14 @@ namespace KyberNET.Keys
     using Constants;
     using Internal;
     
+    /// <summary>
+    /// An ML-KEM encapsulation (public) key used to create shared secrets
+    /// </summary>
     public sealed class KyberEncapsulationKey
         : IKyberKEMKey
     {
         internal KyberEncryptionKey Key { get; }
-        
+
         IKyberPKEKey IKyberKEMKey.Key => Key;
 
         internal KyberEncapsulationKey(KyberEncryptionKey key)
@@ -15,8 +18,33 @@ namespace KyberNET.Keys
             Key = key;
         }
 
+        /// <summary>
+        /// The ML-KEM parameter set this key belongs to
+        /// </summary>
+        public KyberParameter Parameter => Key.Parameter;
+
+        /// <summary>
+        /// Returns a copy of the serialized key bytes.
+        /// Each access allocates a new array.
+        /// Capture in a local variable declaration to avoid repeated allocations.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// // Bad: allocates twice
+        /// hash.Update(key.FullBytes);
+        /// store.Save(key.FullBytes);
+        ///
+        /// // Good: allocates once
+        /// var keyBytes = key.FullBytes;
+        /// hash.Update(keyBytes);
+        /// store.Save(keyBytes);
+        /// </code>
+        /// </example>
         public byte[] FullBytes => Key.FullBytes;
-        
+
+        /// <summary>
+        /// Performs ML-KEM encapsulation, producing a shared secret and ciphertext
+        /// </summary>
         public KyberEncapsulationResult Encapsulate(IRandomProvider? randomProvider = null)
         {
             var plainText = new byte[KyberConstants.N_BYTES];
@@ -27,6 +55,9 @@ namespace KyberNET.Keys
             return KyberAgreement.Encapsulate(this, plainText);
         }
 
+        /// <summary>
+        /// Deserializes an encapsulation key from its byte representation
+        /// </summary>
         public static KyberEncapsulationKey FromBytes(byte[] bytes) => new(KyberEncryptionKey.FromBytes(bytes));
     }
 }

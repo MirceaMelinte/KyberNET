@@ -2,7 +2,7 @@ namespace KyberNET.Hashing
 {
     using System;
 
-    public sealed class HashInputStream
+    internal sealed class HashInputStream
     {
         private KeccakParameter PARAMETER { get; }
         

@@ -2,7 +2,7 @@ namespace KyberNET.Hashing
 {
     using System;
 
-    public readonly struct FlexiByte(byte value, int bitIndex)
+    internal readonly struct FlexiByte(byte value, int bitIndex)
         : IComparable<byte>
     {
         private byte Byte { get; } = value;

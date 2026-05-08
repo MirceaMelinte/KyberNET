@@ -1,7 +1,7 @@
 namespace KyberNET.Constants
 {
-    /// <summary>Numerical constants used throughout Kyber</summary>
-    public static class KyberConstants
+    // Numerical constants used throughout Kyber
+    internal static class KyberConstants
     {
         public const int N  = 256;
         public const int N_BYTES = N >> 3;

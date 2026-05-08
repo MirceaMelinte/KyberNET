@@ -1,6 +1,6 @@
 namespace KyberNET.Hashing
 {
-    public sealed class SHAKE128(int? outputLength = null)
+    internal sealed class SHAKE128(int? outputLength = null)
         : AbstractKeccakFunction(KeccakParameter.SHAKE_128.BYTERATE)
     {
         public int OutputLength { get; } = outputLength ?? (KeccakParameter.SHAKE_128.MIN_LENGTH / 8);

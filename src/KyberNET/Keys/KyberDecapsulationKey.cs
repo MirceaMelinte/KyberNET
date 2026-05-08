@@ -7,6 +7,9 @@ namespace KyberNET.Keys
     using Hashing;
     using Internal;
 
+    /// <summary>
+    /// An ML-KEM decapsulation (private) key used to recover shared secrets from ciphertexts
+    /// </summary>
     public sealed class KyberDecapsulationKey
         : IKyberKEMKey
     {
@@ -14,7 +17,10 @@ namespace KyberNET.Keys
         internal KyberEncryptionKey EncryptionKey { get; }
         internal byte[] Hash { get; }
         internal byte[] RandomSeed { get; }
-        
+
+        /// <summary>
+        /// The ML-KEM parameter set this key belongs to
+        /// </summary>
         public KyberParameter Parameter { get; }
         
         IKyberPKEKey IKyberKEMKey.Key => Key;
@@ -35,6 +41,23 @@ namespace KyberNET.Keys
             }
         }
 
+        /// <summary>
+        /// Returns a copy of the serialized key bytes.
+        /// Each access allocates a new array.
+        /// Capture in a local variable declaration to avoid repeated allocations.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// // Bad: allocates twice
+        /// hash.Update(key.FullBytes);
+        /// store.Save(key.FullBytes);
+        ///
+        /// // Good: allocates once
+        /// var keyBytes = key.FullBytes;
+        /// hash.Update(keyBytes);
+        /// store.Save(keyBytes);
+        /// </code>
+        /// </example>
         public byte[] FullBytes
         {
             get
@@ -58,8 +81,14 @@ namespace KyberNET.Keys
             }
         }
         
+        /// <summary>
+        /// Performs ML-KEM decapsulation, recovering the shared secret from a ciphertext
+        /// </summary>
         public byte[] Decapsulate(KyberCipherText cipherText) => KyberAgreement.Decapsulate(this, cipherText);
 
+        /// <summary>
+        /// Deserializes a decapsulation key from its byte representation.
+        /// </summary>
         public static KyberDecapsulationKey FromBytes(byte[] bytes)
         {
             var parameter = KyberParameter.FindByDecapsulationKeySize(bytes.Length);

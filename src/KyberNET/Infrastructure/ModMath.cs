@@ -2,7 +2,7 @@ namespace KyberNET.Infrastructure
 {
     using Constants;
     
-    public static class ModMath
+    internal static class ModMath
     {
         /// <summary>
         /// Maps <paramref name="n"/> into [0, 2 · Q]

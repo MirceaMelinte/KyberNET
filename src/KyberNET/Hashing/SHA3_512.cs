@@ -1,6 +1,6 @@
 namespace KyberNET.Hashing
 {
-    public sealed class SHA3_512(int? outputLength = null)
+    internal sealed class SHA3_512(int? outputLength = null)
         : AbstractKeccakFunction(KeccakParameter.SHA3_512.BYTERATE)
     {
         public int OutputLength { get; } = outputLength ?? (KeccakParameter.SHA3_512.MIN_LENGTH / 8); // 64

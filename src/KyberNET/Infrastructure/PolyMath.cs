@@ -5,7 +5,7 @@ namespace KyberNET.Infrastructure
     /// <summary>
     /// Includes pure integer polynomial helpers. In other words, math for the NTT-domain work
     /// </summary>
-    public static class PolyMath
+    internal static class PolyMath
     {
         public static int[] VectorAdd(int[] v1, int[] v2)
         {
