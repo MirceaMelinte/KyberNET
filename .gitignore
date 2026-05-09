@@ -34,5 +34,7 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 
+.editorconfig
+
 CLAUDE.md
 .claude/

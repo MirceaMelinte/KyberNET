@@ -1,9 +1,8 @@
-namespace KyberNET.Keys
-{
-    using Constants;
+namespace KyberNET.Keys;
 
-    internal interface IKyberPKEKey
-    {
-        KyberParameter Parameter { get; }
-    }
+using Constants;
+
+internal interface IKyberPKEKey
+{
+    KyberParameter Parameter { get; }
 }

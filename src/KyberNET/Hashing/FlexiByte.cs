@@ -1,40 +1,37 @@
-namespace KyberNET.Hashing
+namespace KyberNET.Hashing;
+
+internal readonly struct FlexiByte(byte value, int bitIndex)
+    : IComparable<byte>
 {
-    using System;
+    private byte Byte { get; } = value;
 
-    internal readonly struct FlexiByte(byte value, int bitIndex)
-        : IComparable<byte>
+    public int BitIndex { get; } = Math.Clamp(bitIndex, 0, 7);
+
+    public byte ToByte() => Byte;
+
+    public int CompareTo(byte other) => Byte.CompareTo(other);
+
+    public static FlexiByte FromString(string bits)
     {
-        private byte Byte { get; } = value;
+        var input = bits?.Trim() ?? string.Empty;
 
-        public int BitIndex { get; } = Math.Clamp(bitIndex, 0, 7);
-
-        public byte ToByte() => Byte;
-
-        public int CompareTo(byte other) => Byte.CompareTo(other);
-
-        public static FlexiByte FromString(string bits)
+        if (input.Length > 8)
         {
-            var input = bits?.Trim() ?? string.Empty;
-
-            if (input.Length > 8)
-            {
-                throw new ArgumentException("Cannot convert from a byte consisting of more than 8 binary values");
-            }
-
-            byte v = 0;
-
-            var bitIdx = Math.Min(input.Length, 8) - 1;
-
-            for (var i = 0; i <= bitIdx; i++)
-            {
-                if (input[bitIdx - i] == '1')
-                {
-                    v = (byte)(v | (1 << i));
-                }
-            }
-
-            return new FlexiByte(v, bitIdx);
+            throw new ArgumentException("Cannot convert from a byte consisting of more than 8 binary values");
         }
+
+        byte v = 0;
+
+        var bitIdx = Math.Min(input.Length, 8) - 1;
+
+        for (var i = 0; i <= bitIdx; i++)
+        {
+            if (input[bitIdx - i] == '1')
+            {
+                v = (byte)(v | (1 << i));
+            }
+        }
+
+        return new FlexiByte(v, bitIdx);
     }
 }

@@ -1,181 +1,181 @@
-namespace KyberNET.Infrastructure
+namespace KyberNET.Infrastructure;
+
+using Constants;
+
+/// <summary>
+/// Includes pure integer polynomial helpers. In other words, math for the NTT-domain work
+/// </summary>
+internal static class PolyMath
 {
-    using Constants;
-    
-    /// <summary>
-    /// Includes pure integer polynomial helpers. In other words, math for the NTT-domain work
-    /// </summary>
-    internal static class PolyMath
+    public static int[] VectorAdd(int[] v1, int[] v2)
     {
-        public static int[] VectorAdd(int[] v1, int[] v2)
+        var output = new int[v1.Length];
+
+        for (var i = 0; i < v1.Length; i++)
         {
-            var output = new int[v1.Length];
-
-            for (var i = 0; i < v1.Length; i++)
-            {
-                output[i] = v1[i] + v2[i];
-            }
-
-            return output;
+            output[i] = v1[i] + v2[i];
         }
 
-        public static int[][] VectorAdd(int[][] v1, int[][] v2)
+        return output;
+    }
+
+    public static int[][] VectorAdd(int[][] v1, int[][] v2)
+    {
+        var output = new int[v1.Length][];
+
+        for (var i = 0; i < v1.Length; i++)
         {
-            var output = new int[v1.Length][];
-
-            for (var i = 0; i < v1.Length; i++)
-            {
-                output[i] = VectorAdd(v1[i], v2[i]);
-            }
-
-            return output;
+            output[i] = VectorAdd(v1[i], v2[i]);
         }
 
-        public static int[] ToMontgomeryVector(int[] coefficients)
+        return output;
+    }
+
+    public static int[] ToMontgomeryVector(int[] coefficients)
+    {
+        var r = new int[coefficients.Length];
+
+        for (var i = 0; i < coefficients.Length; i++)
         {
-            var r = new int[coefficients.Length];
-
-            for (var i = 0; i < coefficients.Length; i++)
-            {
-                r[i] = ModMath.ToMontgomeryForm(coefficients[i]);
-            }
-
-            return r;
+            r[i] = ModMath.ToMontgomeryForm(coefficients[i]);
         }
 
-        public static int[] FromMontgomeryVector(int[] coefficients)
+        return r;
+    }
+
+    public static int[] FromMontgomeryVector(int[] coefficients)
+    {
+        var r = new int[coefficients.Length];
+
+        for (var i = 0; i < coefficients.Length; i++)
         {
-            var r = new int[coefficients.Length];
-
-            for (var i = 0; i < coefficients.Length; i++)
-            {
-                r[i] = ModMath.MontgomeryReduce(coefficients[i]);
-            }
-
-            return r;
+            r[i] = ModMath.MontgomeryReduce(coefficients[i]);
         }
 
-        // Forward Number-theoretic transform in-place
-        public static int[] Ntt(int[] poly)
-        {
-            var a = (int[])poly.Clone();
-            var length = KyberConstants.N >> 1;
-            var k = 1;
+        return r;
+    }
 
-            while (length >= 2)
+    // Forward Number-theoretic transform in-place
+    public static int[] Ntt(int[] poly)
+    {
+        var a = (int[])poly.Clone();
+        var length = KyberConstants.N >> 1;
+        var k = 1;
+
+        while (length >= 2)
+        {
+            for (var start = 0; start < KyberConstants.N; start += (length << 1))
             {
-                for (var start = 0; start < KyberConstants.N; start += (length << 1))
+                for (var j = start; j < start + length; j++)
                 {
-                    for (var j = start; j < start + length; j++)
-                    {
-                        var t = ModMath.ProductOf(
-                            PrecomputedTables.Zetas.Span[k],
-                            a[j + length]);
+                    var t = ModMath.ProductOf(
+                        PrecomputedTables.Zetas.Span[k],
+                        a[j + length]);
 
-                        a[j + length] = ModMath.BarrettReduce(a[j] - t);
-                        a[j] = a[j] + t; // lazy reduction
-                    }
-
-                    k++;
+                    a[j + length] = ModMath.BarrettReduce(a[j] - t);
+                    a[j] = a[j] + t; // lazy reduction
                 }
 
-                length >>= 1;
+                k++;
             }
 
-            // finally, do a full reduction to ensure that all outputs are < Q
-            for (var i = 0; i < KyberConstants.N; i++)
-            {
-                a[i] = ModMath.BarrettReduce(a[i]);
-            }
-
-            return a;
+            length >>= 1;
         }
 
-        public static int[] InverseNtt(int[] poly)
+        // finally, do a full reduction to ensure that all outputs are < Q
+        for (var i = 0; i < KyberConstants.N; i++)
         {
-            var a = (int[])poly.Clone();
-            var length = 2;
-            var k = (KyberConstants.N >> 1) - 1;
+            a[i] = ModMath.BarrettReduce(a[i]);
+        }
 
-            while (length <= KyberConstants.N >> 1)
+        return a;
+    }
+
+    public static int[] InverseNtt(int[] poly)
+    {
+        var a = (int[])poly.Clone();
+        var length = 2;
+        var k = (KyberConstants.N >> 1) - 1;
+
+        while (length <= KyberConstants.N >> 1)
+        {
+            for (var start = 0; start < KyberConstants.N; start += (length << 1))
             {
-                for (var start = 0; start < KyberConstants.N; start += (length << 1))
+                for (var j = start; j < start + length; j++)
                 {
-                    for (var j = start; j < start + length; j++)
-                    {
-                        var t = a[j];
-                        a[j] = t + a[j + length]; // lazy reduction
-                        a[j + length] = ModMath.ProductOf(
-                            PrecomputedTables.Zetas.Span[k],
-                            ModMath.BarrettReduce(a[j + length] - t));
-                    }
-
-                    k--;
+                    var t = a[j];
+                    a[j] = t + a[j + length]; // lazy reduction
+                    a[j + length] = ModMath.ProductOf(
+                        PrecomputedTables.Zetas.Span[k],
+                        ModMath.BarrettReduce(a[j + length] - t));
                 }
 
-                length <<= 1;
+                k--;
             }
 
-            // multiply by n^(-1) = 512 (Montgomery form) & full reduction
-            for (var i = 0; i < KyberConstants.N; i++)
-            {
-                a[i] = ModMath.BarrettReduce(ModMath.ProductOf(a[i], 512));
-            }
-
-            return a;
+            length <<= 1;
         }
 
-        // NTT Point-wise multiplication
-        public static int[] MultiplyNtts(int[] ntt1, int[] ntt2)        {
-            return MultiplyNtts(ntt1, ntt2, 0);
-        }
-
-        public static int[] MultiplyNtts(int[] ntt1, int[] ntt2, int offset1)
+        // multiply by n^(-1) = 512 (Montgomery form) & full reduction
+        for (var i = 0; i < KyberConstants.N; i++)
         {
-            var output = new int[KyberConstants.N];
-
-            for (var i = 0; i < KyberConstants.N >> 1; i++)
-            {
-                // 4 Montgomery multiplications per pair
-                var a = i << 1;
-                var b = a + 1;
-
-                var x = ModMath.ProductOf(ntt1[a + offset1], ntt2[a]);
-                var y = ModMath.ProductOf(ntt1[b + offset1], ntt2[b]);
-
-                output[a] = ModMath.ProductOf(y, PrecomputedTables.Gammas.Span[i]) + x;
-                output[b] = ModMath.ProductOf(
-                    ntt1[a + offset1] + ntt1[b + offset1],
-                    ntt2[a] + ntt2[b]) - x - y;
-            }
-
-            return output;
+            a[i] = ModMath.BarrettReduce(ModMath.ProductOf(a[i], 512));
         }
-        
-        // NTT Matrix x vector
-        public static int[][] NttMatrixVectorDot(int[][][] matrix, int[][] vector, bool isTransposed = false)
+
+        return a;
+    }
+
+    // NTT Point-wise multiplication
+    public static int[] MultiplyNtts(int[] ntt1, int[] ntt2)
+    {
+        return MultiplyNtts(ntt1, ntt2, 0);
+    }
+
+    public static int[] MultiplyNtts(int[] ntt1, int[] ntt2, int offset1)
+    {
+        var output = new int[KyberConstants.N];
+
+        for (var i = 0; i < KyberConstants.N >> 1; i++)
         {
-            var k = vector.Length;
-            var result = new int[k][];
+            // 4 Montgomery multiplications per pair
+            var a = i << 1;
+            var b = a + 1;
 
-            for (var i = 0; i < k; i++)
-            {
-                result[i] = new int[KyberConstants.N];
-            }
+            var x = ModMath.ProductOf(ntt1[a + offset1], ntt2[a]);
+            var y = ModMath.ProductOf(ntt1[b + offset1], ntt2[b]);
 
-            for (var i = 0; i < k; i++)
-            {
-                for (var j = 0; j < k; j++)
-                {
-                    var a = isTransposed ? j : i;
-                    var b = isTransposed ? i : j;
-
-                    var product = MultiplyNtts(matrix[a][b], vector[j]);
-                    result[i] = VectorAdd(result[i], product);
-                }
-            }
-            
-            return result;
+            output[a] = ModMath.ProductOf(y, PrecomputedTables.Gammas.Span[i]) + x;
+            output[b] = ModMath.ProductOf(
+                ntt1[a + offset1] + ntt1[b + offset1],
+                ntt2[a] + ntt2[b]) - x - y;
         }
+
+        return output;
+    }
+
+    // NTT Matrix x vector
+    public static int[][] NttMatrixVectorDot(int[][][] matrix, int[][] vector, bool isTransposed = false)
+    {
+        var k = vector.Length;
+        var result = new int[k][];
+
+        for (var i = 0; i < k; i++)
+        {
+            result[i] = new int[KyberConstants.N];
+        }
+
+        for (var i = 0; i < k; i++)
+        {
+            for (var j = 0; j < k; j++)
+            {
+                var a = isTransposed ? j : i;
+                var b = isTransposed ? i : j;
+
+                var product = MultiplyNtts(matrix[a][b], vector[j]);
+                result[i] = VectorAdd(result[i], product);
+            }
+        }
+
+        return result;
     }
 }

@@ -1,54 +1,52 @@
-namespace KyberNET.Infrastructure
+namespace KyberNET.Infrastructure;
+
+using System.Runtime.CompilerServices;
+
+internal static class Subtle
 {
-    using System;
-    using System.Runtime.CompilerServices;
-
-    internal static class Subtle
+    // attribute prevents JIT from reintroducing timing variations
+    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+    internal static int Compare(ReadOnlySpan<byte> a, ReadOnlySpan<byte> b)
     {
-        // attribute prevents JIT from reintroducing timing variations
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        internal static int Compare(ReadOnlySpan<byte> a, ReadOnlySpan<byte> b)
+        var length = a.Length;
+        var diff = length ^ b.Length;
+
+        var minLen = Math.Min(length, b.Length);
+
+        for (var i = 0; i < minLen; i++)
         {
-            var length = a.Length;
-            var diff = length ^ b.Length;
-
-            var minLen = Math.Min(length, b.Length);
-
-            for (var i = 0; i < minLen; i++)
-            {
-                diff |= a[i] ^ b[i];
-            }
-
-            return diff;
+            diff |= a[i] ^ b[i];
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        internal static byte[] Select(int condition, byte[] whenEqual, byte[] whenNotEqual)
+        return diff;
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+    internal static byte[] Select(int condition, byte[] whenEqual, byte[] whenNotEqual)
+    {
+        var isNonZero = condition | (-condition);
+        var mask = (byte)((isNonZero >> 31) & 0xFF);
+
+        var result = new byte[whenEqual.Length];
+
+        for (var i = 0; i < result.Length; i++)
         {
-            var isNonZero = condition | (-condition);
-            var mask = (byte)((isNonZero >> 31) & 0xFF);
-
-            var result = new byte[whenEqual.Length];
-            
-            for (var i = 0; i < result.Length; i++)
-            {
-                result[i] = (byte)((whenEqual[i] & ~mask) | (whenNotEqual[i] & mask));
-            }
-
-            return result;
+            result[i] = (byte)((whenEqual[i] & ~mask) | (whenNotEqual[i] & mask));
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        internal static bool IsAllZero(ReadOnlySpan<byte> data)
-        {
-            var acc = 0;
+        return result;
+    }
 
-            for (var i = 0; i < data.Length; i++)
-            {
-                acc |= data[i];
-            }
-            
-            return acc == 0;
+    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+    internal static bool IsAllZero(ReadOnlySpan<byte> data)
+    {
+        var acc = 0;
+
+        for (var i = 0; i < data.Length; i++)
+        {
+            acc |= data[i];
         }
+
+        return acc == 0;
     }
 }

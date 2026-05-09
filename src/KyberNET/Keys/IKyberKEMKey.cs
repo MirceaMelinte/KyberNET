@@ -1,7 +1,6 @@
-namespace KyberNET.Keys
+namespace KyberNET.Keys;
+
+internal interface IKyberKEMKey
 {
-    internal interface IKyberKEMKey
-    {
-        IKyberPKEKey Key { get; }
-    }
+    IKyberPKEKey Key { get; }
 }

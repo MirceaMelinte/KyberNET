@@ -1,113 +1,111 @@
-namespace KyberNET.Keys
+namespace KyberNET.Keys;
+
+using Constants;
+using Exceptions;
+using Hashing;
+using Infrastructure;
+using Internal;
+
+/// <summary>
+/// An ML-KEM decapsulation (private) key used to recover shared secrets from ciphertexts
+/// </summary>
+public sealed class KyberDecapsulationKey
+    : IKyberKEMKey
 {
-    using System;
-    using Constants;
-    using Exceptions;
-    using Hashing;
-    using Infrastructure;
-    using Internal;
+    internal KyberDecryptionKey Key { get; }
+    internal KyberEncryptionKey EncryptionKey { get; }
+    internal byte[] Hash { get; }
+    internal byte[] RandomSeed { get; }
 
     /// <summary>
-    /// An ML-KEM decapsulation (private) key used to recover shared secrets from ciphertexts
+    /// The ML-KEM parameter set this key belongs to
     /// </summary>
-    public sealed class KyberDecapsulationKey
-        : IKyberKEMKey
+    public KyberParameter Parameter { get; }
+
+    IKyberPKEKey IKyberKEMKey.Key => Key;
+
+    internal KyberDecapsulationKey(KyberDecryptionKey key, KyberEncryptionKey encryptionKey, byte[] hash, byte[] randomSeed)
     {
-        internal KyberDecryptionKey Key { get; }
-        internal KyberEncryptionKey EncryptionKey { get; }
-        internal byte[] Hash { get; }
-        internal byte[] RandomSeed { get; }
+        Key = key;
+        EncryptionKey = encryptionKey;
+        Hash = (byte[])hash.Clone();
+        RandomSeed = (byte[])randomSeed.Clone();
+        Parameter = key.Parameter;
 
-        /// <summary>
-        /// The ML-KEM parameter set this key belongs to
-        /// </summary>
-        public KyberParameter Parameter { get; }
-        
-        IKyberPKEKey IKyberKEMKey.Key => Key;
+        var encryptionKeyHash = new SHA3_256().Digest(encryptionKey.FullBytes);
 
-        internal KyberDecapsulationKey(KyberDecryptionKey key, KyberEncryptionKey encryptionKey, byte[] hash, byte[] randomSeed)
+        if (Subtle.Compare(encryptionKeyHash, hash) != 0)
         {
-            Key = key;
-            EncryptionKey = encryptionKey;
-            Hash = (byte[])hash.Clone();
-            RandomSeed = (byte[])randomSeed.Clone();
-            Parameter = key.Parameter;
-
-            var encryptionKeyHash = new SHA3_256().Digest(encryptionKey.FullBytes);
-
-            if (Subtle.Compare(encryptionKeyHash, hash) != 0)
-            {
-                throw new InvalidKyberKeyException("Hash check failed! Invalid descapsulation key");
-            }
+            throw new InvalidKyberKeyException("Hash check failed! Invalid descapsulation key");
         }
+    }
 
-        /// <summary>
-        /// Returns a copy of the serialized key bytes.
-        /// Each access allocates a new array.
-        /// Capture in a local variable declaration to avoid repeated allocations.
-        /// </summary>
-        /// <example>
-        /// <code>
-        /// // Bad: allocates twice
-        /// hash.Update(key.FullBytes);
-        /// store.Save(key.FullBytes);
-        ///
-        /// // Good: allocates once
-        /// var keyBytes = key.FullBytes;
-        /// hash.Update(keyBytes);
-        /// store.Save(keyBytes);
-        /// </code>
-        /// </example>
-        public byte[] FullBytes
+    /// <summary>
+    /// Returns a copy of the serialized key bytes.
+    /// Each access allocates a new array.
+    /// Capture in a local variable declaration to avoid repeated allocations.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// // Bad: allocates twice
+    /// hash.Update(key.FullBytes);
+    /// store.Save(key.FullBytes);
+    ///
+    /// // Good: allocates once
+    /// var keyBytes = key.FullBytes;
+    /// hash.Update(keyBytes);
+    /// store.Save(keyBytes);
+    /// </code>
+    /// </example>
+    public byte[] FullBytes
+    {
+        get
         {
-            get
-            {
-                var output = new byte[Parameter.DecapsulationKeyLength];
-                var offset = 0;
+            var output = new byte[Parameter.DecapsulationKeyLength];
+            var offset = 0;
 
-                Buffer.BlockCopy(Key.KeyBytes, 0, output, offset, Key.KeyBytes.Length);
-                offset += Key.KeyBytes.Length;
+            Buffer.BlockCopy(Key.KeyBytes, 0, output, offset, Key.KeyBytes.Length);
+            offset += Key.KeyBytes.Length;
 
-                var encryptionKeyBytes = EncryptionKey.FullBytes;
-                Buffer.BlockCopy(encryptionKeyBytes, 0, output, offset, encryptionKeyBytes.Length);
-                offset += encryptionKeyBytes.Length;
+            var encryptionKeyBytes = EncryptionKey.FullBytes;
+            Buffer.BlockCopy(encryptionKeyBytes, 0, output, offset, encryptionKeyBytes.Length);
+            offset += encryptionKeyBytes.Length;
 
-                Buffer.BlockCopy(Hash, 0, output, offset, Hash.Length);
-                offset += Hash.Length;
+            Buffer.BlockCopy(Hash, 0, output, offset, Hash.Length);
+            offset += Hash.Length;
 
-                Buffer.BlockCopy(RandomSeed, 0, output, offset, RandomSeed.Length);
+            Buffer.BlockCopy(RandomSeed, 0, output, offset, RandomSeed.Length);
 
-                return output;
-            }
+            return output;
         }
-        
-        /// <summary>
-        /// Performs ML-KEM decapsulation, recovering the shared secret from a ciphertext
-        /// </summary>
-        public byte[] Decapsulate(KyberCipherText cipherText) => KyberAgreement.Decapsulate(this, cipherText);
+    }
 
-        /// <summary>
-        /// Deserializes a decapsulation key from its byte representation.
-        /// </summary>
-        public static KyberDecapsulationKey FromBytes(byte[] bytes)
-        {
-            var parameter = KyberParameter.FindByDecapsulationKeySize(bytes.Length);
+    /// <summary>
+    /// Performs ML-KEM decapsulation, recovering the shared secret from a ciphertext
+    /// </summary>
+    public byte[] Decapsulate(KyberCipherText cipherText) => KyberAgreement.Decapsulate(this, cipherText);
 
-            var decryptionKeyBytes = new byte[parameter.DecryptionKeyLength];
-            Buffer.BlockCopy(bytes, 0, decryptionKeyBytes, 0, decryptionKeyBytes.Length);
-            var decryptionKey = KyberDecryptionKey.FromBytes(decryptionKeyBytes);
-            
-            var encryptionKeyBytes = new byte[parameter.EncryptionKeyLength];
-            Buffer.BlockCopy(bytes, parameter.DecryptionKeyLength, encryptionKeyBytes, 0, encryptionKeyBytes.Length);
-            var encryptionKey = KyberEncryptionKey.FromBytes(encryptionKeyBytes);
+    /// <summary>
+    /// Deserializes a decapsulation key from its byte representation.
+    /// </summary>
+    public static KyberDecapsulationKey FromBytes(byte[] bytes)
+    {
+        var parameter = KyberParameter.FindByDecapsulationKeySize(bytes.Length);
 
-            var hash = new byte[KyberConstants.N_BYTES];
-            Buffer.BlockCopy(bytes, bytes.Length - (2 * KyberConstants.N_BYTES), hash, 0, KyberConstants.N_BYTES);
+        var decryptionKeyBytes = new byte[parameter.DecryptionKeyLength];
+        Buffer.BlockCopy(bytes, 0, decryptionKeyBytes, 0, decryptionKeyBytes.Length);
+        var decryptionKey = KyberDecryptionKey.FromBytes(decryptionKeyBytes);
 
-            var randomSeed = new byte[KyberConstants.N_BYTES];
-            Buffer.BlockCopy(bytes, bytes.Length - KyberConstants.N_BYTES, randomSeed, 0, KyberConstants.N_BYTES);
+        var encryptionKeyBytes = new byte[parameter.EncryptionKeyLength];
+        Buffer.BlockCopy(bytes, parameter.DecryptionKeyLength, encryptionKeyBytes, 0, encryptionKeyBytes.Length);
+        var encryptionKey = KyberEncryptionKey.FromBytes(encryptionKeyBytes);
 
-            return new KyberDecapsulationKey(decryptionKey, encryptionKey, hash, randomSeed);
-        }
+        var hash = new byte[KyberConstants.N_BYTES];
+        Buffer.BlockCopy(bytes, bytes.Length - (2 * KyberConstants.N_BYTES), hash, 0, KyberConstants.N_BYTES);
+
+        var randomSeed = new byte[KyberConstants.N_BYTES];
+        Buffer.BlockCopy(bytes, bytes.Length - KyberConstants.N_BYTES, randomSeed, 0, KyberConstants.N_BYTES);
+
+        return new KyberDecapsulationKey(decryptionKey, encryptionKey, hash, randomSeed);
     }
 }

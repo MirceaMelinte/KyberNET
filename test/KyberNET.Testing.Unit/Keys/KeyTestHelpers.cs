@@ -1,17 +1,14 @@
-namespace KyberNET.Testing.Unit.Keys
+namespace KyberNET.Testing.Unit.Keys;
+
+internal static class KeyTestHelpers
 {
-    using System;
+    internal static byte[] MakeValidKeyBytes(int length) => new byte[length];
 
-    internal static class KeyTestHelpers
+    internal static byte[] MakeInvalidKeyBytes(int length)
     {
-        internal static byte[] MakeValidKeyBytes(int length) => new byte[length];
+        var bytes = new byte[length];
+        Array.Fill(bytes, (byte)0xFF);
 
-        internal static byte[] MakeInvalidKeyBytes(int length)
-        {
-            var bytes = new byte[length];
-            Array.Fill(bytes, (byte)0xFF);
-            
-            return bytes;
-        }
+        return bytes;
     }
 }

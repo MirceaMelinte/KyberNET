@@ -1,35 +1,34 @@
-namespace KyberNET.Keys
+namespace KyberNET.Keys;
+
+using Constants;
+using Exceptions;
+using Infrastructure;
+
+internal sealed class KyberDecryptionKey
+    : IKyberPKEKey
 {
-    using Constants;
-    using Exceptions;
-    using Infrastructure;
+    public KyberParameter Parameter { get; }
 
-    internal sealed class KyberDecryptionKey
-        : IKyberPKEKey
+    internal byte[] KeyBytes { get; }
+
+    internal KyberDecryptionKey(KyberParameter parameter, byte[] keyBytes)
     {
-        public KyberParameter Parameter { get; }
-        
-        internal byte[] KeyBytes { get; }
+        Parameter = parameter;
+        KeyBytes = (byte[])keyBytes.Clone();
 
-        internal KyberDecryptionKey(KyberParameter parameter, byte[] keyBytes)
+        var coefficients = Encoding.FastByteDecode(KeyBytes, 12);
+
+        for (var i = 0; i < coefficients.Length; i++)
         {
-            Parameter = parameter;
-            KeyBytes = (byte[])keyBytes.Clone();
-
-            var coefficients = Encoding.FastByteDecode(KeyBytes, 12);
-
-            for (var i = 0; i < coefficients.Length; i++)
+            if (!ModMath.IsModuloOfQ(coefficients[i]))
             {
-                if (!ModMath.IsModuloOfQ(coefficients[i]))
-                {
-                    throw new InvalidKyberKeyException($"Not modulus of {KyberConstants.Q}");
-                }
+                throw new InvalidKyberKeyException($"Not modulus of {KyberConstants.Q}");
             }
         }
-
-        public byte[] FullBytes => (byte[])KeyBytes.Clone();
-
-        public static KyberDecryptionKey FromBytes(byte[] bytes)
-            => new(KyberParameter.FindByDecryptionKeySize(bytes.Length), bytes);
     }
+
+    public byte[] FullBytes => (byte[])KeyBytes.Clone();
+
+    public static KyberDecryptionKey FromBytes(byte[] bytes)
+        => new(KyberParameter.FindByDecryptionKeySize(bytes.Length), bytes);
 }

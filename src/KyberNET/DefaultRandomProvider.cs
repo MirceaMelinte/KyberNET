@@ -1,11 +1,10 @@
-namespace KyberNET
+namespace KyberNET;
+
+using System.Security.Cryptography;
+
+internal sealed class DefaultRandomProvider : IRandomProvider
 {
-    using System.Security.Cryptography;
+    public static readonly DefaultRandomProvider Instance = new();
 
-    internal sealed class DefaultRandomProvider : IRandomProvider
-    {
-        public static readonly DefaultRandomProvider Instance = new();
-
-        public void FillWithRandom(byte[] buffer) => RandomNumberGenerator.Fill(buffer);
-    }
+    public void FillWithRandom(byte[] buffer) => RandomNumberGenerator.Fill(buffer);
 }
