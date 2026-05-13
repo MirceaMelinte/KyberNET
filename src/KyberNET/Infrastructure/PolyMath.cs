@@ -72,7 +72,7 @@ internal static class PolyMath
                         PrecomputedTables.Zetas.Span[k],
                         a[j + length]);
 
-                    a[j + length] = ModMath.BarrettReduce(a[j] - t);
+                    a[j + length] = a[j] - t;
                     a[j] = a[j] + t; // lazy reduction
                 }
 
@@ -80,12 +80,6 @@ internal static class PolyMath
             }
 
             length >>= 1;
-        }
-
-        // finally, do a full reduction to ensure that all outputs are < Q
-        for (var i = 0; i < KyberConstants.N; i++)
-        {
-            a[i] = ModMath.BarrettReduce(a[i]);
         }
 
         return a;
@@ -107,7 +101,7 @@ internal static class PolyMath
                     a[j] = t + a[j + length]; // lazy reduction
                     a[j + length] = ModMath.ProductOf(
                         PrecomputedTables.Zetas.Span[k],
-                        ModMath.BarrettReduce(a[j + length] - t));
+                        a[j + length] - t);
                 }
 
                 k--;
@@ -119,7 +113,7 @@ internal static class PolyMath
         // multiply by n^(-1) = 512 (Montgomery form) & full reduction
         for (var i = 0; i < KyberConstants.N; i++)
         {
-            a[i] = ModMath.BarrettReduce(ModMath.ProductOf(a[i], 512));
+            a[i] = ModMath.ProductOf(a[i], 512);
         }
 
         return a;

@@ -12,7 +12,8 @@ internal static class ModMath
     public static int BarrettReduce(int n)
     {
         var q = (n * KyberConstants.BARRETT_APPROX) >> 26;
-        return n - (q * KyberConstants.Q);
+        var result = n - (q * KyberConstants.Q);
+        return result == KyberConstants.Q ? 0 : result;
     }
 
     /// <summary>
