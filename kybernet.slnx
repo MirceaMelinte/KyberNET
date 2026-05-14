@@ -13,6 +13,7 @@
   <Folder Name="/test/">
     <Project Path="test/KyberNET.Testing.Benchmark/KyberNET.Testing.Benchmark.csproj" />
     <Project Path="test/KyberNET.Testing.Integration/KyberNET.Testing.Integration.csproj" />
+    <Project Path="test/KyberNET.Testing.Kat/KyberNET.Testing.Kat.csproj" />
     <Project Path="test/KyberNET.Testing.Unit/KyberNET.Testing.Unit.csproj" />
   </Folder>
 </Solution>
