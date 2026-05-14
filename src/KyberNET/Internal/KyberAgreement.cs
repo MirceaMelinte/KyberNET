@@ -122,6 +122,8 @@ internal static class KyberAgreement
             }
         }
 
+        Array.Clear(secretVector, 0, secretVector.Length);
+
         var result = new byte[KyberConstants.N_BYTES];
 
         Encoding.CompressAndEncodeInto(result, 0, constantTerms, 1);
@@ -150,7 +152,10 @@ internal static class KyberAgreement
 
         Array.Clear(plainText, 0, plainText.Length);
 
-        return new KyberEncapsulationResult(sharedKeyAndRandomness[..KyberConstants.SECRET_KEY_LENGTH], cipherText);
+        var sharedKey = sharedKeyAndRandomness[..KyberConstants.SECRET_KEY_LENGTH];
+        Array.Clear(sharedKeyAndRandomness, 0, sharedKeyAndRandomness.Length);
+
+        return new KyberEncapsulationResult(sharedKey, cipherText);
     }
 
     internal static byte[] Decapsulate(KyberDecapsulationKey decapsulationKey, KyberCipherText cipherText)
@@ -179,6 +184,8 @@ internal static class KyberAgreement
 
         var condition = Subtle.Compare(cipherText.FullBytes, regeneratedCipherText.FullBytes);
         secretKeyCandidate = Subtle.Select(condition, secretKeyCandidate, secretKeyRejection);
+
+        Array.Clear(secretKeyRejection, 0, secretKeyRejection.Length);
 
         return secretKeyCandidate;
     }
