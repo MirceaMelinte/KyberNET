@@ -5,8 +5,10 @@ using Exceptions;
 using Infrastructure;
 
 internal sealed class KyberDecryptionKey
-    : IKyberPKEKey
+    : IKyberPKEKey, IDisposable
 {
+    private bool disposed;
+
     public KyberParameter Parameter { get; }
 
     internal byte[] KeyBytes { get; }
@@ -31,4 +33,14 @@ internal sealed class KyberDecryptionKey
 
     public static KyberDecryptionKey FromBytes(byte[] bytes)
         => new(KyberParameter.FindByDecryptionKeySize(bytes.Length), bytes);
+
+    public void Dispose()
+    {
+        if (!disposed)
+        {
+            Array.Clear(KeyBytes, 0, KeyBytes.Length);
+            
+            disposed = true;
+        }
+    }
 }

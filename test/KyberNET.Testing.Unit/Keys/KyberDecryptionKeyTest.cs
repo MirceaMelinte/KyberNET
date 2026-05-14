@@ -1,5 +1,6 @@
 namespace KyberNET.Testing.Unit.Keys;
 
+using System.Linq;
 using KyberNET.Constants;
 using KyberNET.Exceptions;
 using KyberNET.Keys;
@@ -84,6 +85,40 @@ public class KyberDecryptionKeyTest
 
             // Assert
             Assert.AreSame(KyberParameter.MlKem1024, key.Parameter);
+        }
+    }
+
+    [TestClass]
+    public class Dispose
+        : KyberDecryptionKeyTest
+    {
+        [TestMethod, TestCategory("Keys"), TestCategory("DecryptionKey")]
+        public void ZeroesKeyBytes()
+        {
+            // Arrange
+            var keyBytes = KeyTestHelpers.MakeValidKeyBytes(KyberParameter.MlKem512.DecryptionKeyLength);
+            var key = new KyberDecryptionKey(KyberParameter.MlKem512, keyBytes);
+
+            // Act
+            key.Dispose();
+
+            // Assert
+            Assert.IsTrue(key.KeyBytes.All(b => b == 0));
+        }
+
+        [TestMethod, TestCategory("Keys"), TestCategory("DecryptionKey")]
+        public void IsSafeToCallTwice()
+        {
+            // Arrange
+            var keyBytes = KeyTestHelpers.MakeValidKeyBytes(KyberParameter.MlKem512.DecryptionKeyLength);
+            var key = new KyberDecryptionKey(KyberParameter.MlKem512, keyBytes);
+
+            // Act
+            key.Dispose();
+            key.Dispose();
+
+            // Assert
+            Assert.IsTrue(key.KeyBytes.All(b => b == 0));
         }
     }
 }

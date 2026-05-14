@@ -10,8 +10,10 @@ using Internal;
 /// An ML-KEM decapsulation (private) key used to recover shared secrets from ciphertexts
 /// </summary>
 public sealed class KyberDecapsulationKey
-    : IKyberKEMKey
+    : IKyberKEMKey, IDisposable
 {
+    private bool disposed;
+
     internal KyberDecryptionKey Key { get; }
     internal KyberEncryptionKey EncryptionKey { get; }
     internal byte[] Hash { get; }
@@ -107,5 +109,18 @@ public sealed class KyberDecapsulationKey
         Buffer.BlockCopy(bytes, bytes.Length - KyberConstants.N_BYTES, randomSeed, 0, KyberConstants.N_BYTES);
 
         return new KyberDecapsulationKey(decryptionKey, encryptionKey, hash, randomSeed);
+    }
+
+    public void Dispose()
+    {
+        if (!disposed)
+        {
+            Array.Clear(Hash, 0, Hash.Length);
+            Array.Clear(RandomSeed, 0, RandomSeed.Length);
+            
+            Key.Dispose();
+            
+            disposed = true;
+        }
     }
 }

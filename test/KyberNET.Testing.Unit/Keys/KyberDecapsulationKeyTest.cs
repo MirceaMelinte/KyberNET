@@ -1,5 +1,6 @@
 namespace KyberNET.Testing.Unit.Keys;
 
+using System.Linq;
 using KyberNET.Constants;
 using KyberNET.Exceptions;
 using KyberNET.Hashing;
@@ -110,6 +111,40 @@ public class KyberDecapsulationKeyTest
         {
             // Act & Assert
             Assert.ThrowsExactly<UnsupportedKyberVariantException>(() => KyberDecapsulationKey.FromBytes(new byte[999]));
+        }
+    }
+
+    [TestClass]
+    public class Dispose
+        : KyberDecapsulationKeyTest
+    {
+        [TestMethod, TestCategory("Keys"), TestCategory("DecapsulationKey")]
+        public void ZeroesSensitiveFields()
+        {
+            // Arrange
+            var key = MakeValidDecapsulationKey(KyberParameter.MlKem512);
+
+            // Act
+            key.Dispose();
+
+            // Assert
+            Assert.IsTrue(key.Hash.All(b => b == 0));
+            Assert.IsTrue(key.RandomSeed.All(b => b == 0));
+            Assert.IsTrue(key.Key.KeyBytes.All(b => b == 0));
+        }
+
+        [TestMethod, TestCategory("Keys"), TestCategory("DecapsulationKey")]
+        public void IsSafeToCallTwice()
+        {
+            // Arrange
+            var key = MakeValidDecapsulationKey(KyberParameter.MlKem768);
+
+            // Act
+            key.Dispose();
+            key.Dispose();
+
+            // Assert
+            Assert.IsTrue(key.Hash.All(b => b == 0));
         }
     }
 }

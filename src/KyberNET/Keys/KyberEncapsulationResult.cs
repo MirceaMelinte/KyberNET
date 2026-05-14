@@ -4,8 +4,11 @@ namespace KyberNET.Keys;
 /// The result of an ML-KEM encapsulation: a shared secret and corresponding ciphertext
 /// </summary>
 public sealed class KyberEncapsulationResult
+    : IDisposable
 {
     private readonly byte[] sharedSecretKey;
+    
+    private bool disposed;
 
     /// <summary>
     /// Returns a copy of the shared secret key.
@@ -36,5 +39,15 @@ public sealed class KyberEncapsulationResult
     {
         this.sharedSecretKey = (byte[])sharedSecretKey.Clone();
         CipherText = cipherText;
+    }
+
+    public void Dispose()
+    {
+        if (!disposed)
+        {
+            Array.Clear(sharedSecretKey, 0, sharedSecretKey.Length);
+            
+            disposed = true;
+        }
     }
 }
