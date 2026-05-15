@@ -99,7 +99,7 @@ internal static class Encoding
         }
     }
 
-    public static int[] ExpandMuse(byte[] bytes)
+    public static int[] ExpandMu(byte[] bytes)
     {
         var shorts = new int[bytes.Length * 8];
         var decompressConstant = ModMath.ToMontgomeryForm(KyberConstants.Q_HALF + 1);

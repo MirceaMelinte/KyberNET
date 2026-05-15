@@ -208,17 +208,17 @@ public class EncodingTest
     }
 
     [TestClass]
-    public class ExpandMuseTest
+    public class ExpandMuTest
         : EncodingTest
     {
-        [TestMethod, TestCategory("Encoding"), TestCategory("ExpandMuse")]
+        [TestMethod, TestCategory("Encoding"), TestCategory("ExpandMu")]
         public void AllZeroBytesProducesAllZeros()
         {
             // Arrange
             var bytes = new byte[] { 0x00 };
 
             // Act
-            var result = Encoding.ExpandMuse(bytes);
+            var result = Encoding.ExpandMu(bytes);
 
             // Assert
             Assert.AreEqual(8, result.Length);
@@ -229,7 +229,7 @@ public class EncodingTest
             }
         }
 
-        [TestMethod, TestCategory("Encoding"), TestCategory("ExpandMuse")]
+        [TestMethod, TestCategory("Encoding"), TestCategory("ExpandMu")]
         public void AllOneBitsProducesConstant()
         {
             // Arrange
@@ -237,7 +237,7 @@ public class EncodingTest
             var expectedValue = ModMath.ToMontgomeryForm(KyberConstants.Q_HALF + 1);
 
             // Act
-            var result = Encoding.ExpandMuse(bytes);
+            var result = Encoding.ExpandMu(bytes);
 
             // Assert
             Assert.AreEqual(8, result.Length);
@@ -248,7 +248,7 @@ public class EncodingTest
             }
         }
 
-        [TestMethod, TestCategory("Encoding"), TestCategory("ExpandMuse")]
+        [TestMethod, TestCategory("Encoding"), TestCategory("ExpandMu")]
         public void SingleBitSetExpandsCorrectly()
         {
             // Arrange
@@ -256,7 +256,7 @@ public class EncodingTest
             var expectedValue = ModMath.ToMontgomeryForm(KyberConstants.Q_HALF + 1);
 
             // Act
-            var result = Encoding.ExpandMuse(bytes);
+            var result = Encoding.ExpandMu(bytes);
 
             // Assert
             Assert.AreEqual(expectedValue, result[0]);
@@ -267,14 +267,14 @@ public class EncodingTest
             }
         }
 
-        [TestMethod, TestCategory("Encoding"), TestCategory("ExpandMuse")]
+        [TestMethod, TestCategory("Encoding"), TestCategory("ExpandMu")]
         public void OutputLengthIsEightTimesInputLength()
         {
             // Arrange
             var bytes = new byte[32];
 
             // Act
-            var result = Encoding.ExpandMuse(bytes);
+            var result = Encoding.ExpandMu(bytes);
 
             // Assert
             Assert.AreEqual(256, result.Length);

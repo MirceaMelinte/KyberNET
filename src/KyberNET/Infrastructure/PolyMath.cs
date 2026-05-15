@@ -7,28 +7,20 @@ using Constants;
 /// </summary>
 internal static class PolyMath
 {
-    public static int[] VectorAdd(int[] v1, int[] v2)
+    public static void VectorAdd(int[] target, int[] source)
     {
-        var output = new int[v1.Length];
-
-        for (var i = 0; i < v1.Length; i++)
+        for (var i = 0; i < target.Length; i++)
         {
-            output[i] = v1[i] + v2[i];
+            target[i] += source[i];
         }
-
-        return output;
     }
 
-    public static int[][] VectorAdd(int[][] v1, int[][] v2)
+    public static void VectorAdd(int[][] target, int[][] source)
     {
-        var output = new int[v1.Length][];
-
-        for (var i = 0; i < v1.Length; i++)
+        for (var i = 0; i < target.Length; i++)
         {
-            output[i] = VectorAdd(v1[i], v2[i]);
+            VectorAdd(target[i], source[i]);
         }
-
-        return output;
     }
 
     public static int[] ToMontgomeryVector(int[] coefficients)
@@ -55,10 +47,8 @@ internal static class PolyMath
         return r;
     }
 
-    // Forward Number-theoretic transform in-place
-    public static int[] Ntt(int[] poly)
+    public static void Ntt(int[] poly)
     {
-        var a = (int[])poly.Clone();
         var length = KyberConstants.N >> 1;
         var k = 1;
 
@@ -70,10 +60,10 @@ internal static class PolyMath
                 {
                     var t = ModMath.ProductOf(
                         PrecomputedTables.Zetas.Span[k],
-                        a[j + length]);
+                        poly[j + length]);
 
-                    a[j + length] = a[j] - t;
-                    a[j] = a[j] + t; // lazy reduction
+                    poly[j + length] = poly[j] - t;
+                    poly[j] = poly[j] + t; // lazy reduction
                 }
 
                 k++;
@@ -81,13 +71,10 @@ internal static class PolyMath
 
             length >>= 1;
         }
-
-        return a;
     }
 
-    public static int[] InverseNtt(int[] poly)
+    public static void InverseNtt(int[] poly)
     {
-        var a = (int[])poly.Clone();
         var length = 2;
         var k = (KyberConstants.N >> 1) - 1;
 
@@ -97,11 +84,11 @@ internal static class PolyMath
             {
                 for (var j = start; j < start + length; j++)
                 {
-                    var t = a[j];
-                    a[j] = t + a[j + length]; // lazy reduction
-                    a[j + length] = ModMath.ProductOf(
+                    var t = poly[j];
+                    poly[j] = t + poly[j + length]; // lazy reduction
+                    poly[j + length] = ModMath.ProductOf(
                         PrecomputedTables.Zetas.Span[k],
-                        a[j + length] - t);
+                        poly[j + length] - t);
                 }
 
                 k--;
@@ -110,40 +97,61 @@ internal static class PolyMath
             length <<= 1;
         }
 
-        // multiply by n^(-1) = 512 (Montgomery form) & full reduction
         for (var i = 0; i < KyberConstants.N; i++)
         {
-            a[i] = ModMath.ProductOf(a[i], 512);
+            poly[i] = ModMath.ProductOf(poly[i], 512);
         }
-
-        return a;
     }
 
     // NTT Point-wise multiplication
-    public static int[] MultiplyNtts(int[] ntt1, int[] ntt2)
+    public static void MultiplyNttsInto(int[] output, int[] ntt1, int[] ntt2, int ntt1Offset = 0)
     {
-        return MultiplyNtts(ntt1, ntt2, 0);
-    }
-
-    public static int[] MultiplyNtts(int[] ntt1, int[] ntt2, int offset1)
-    {
-        var output = new int[KyberConstants.N];
-
         for (var i = 0; i < KyberConstants.N >> 1; i++)
         {
             // 4 Montgomery multiplications per pair
             var a = i << 1;
             var b = a + 1;
 
-            var x = ModMath.ProductOf(ntt1[a + offset1], ntt2[a]);
-            var y = ModMath.ProductOf(ntt1[b + offset1], ntt2[b]);
+            var x = ModMath.ProductOf(ntt1[a + ntt1Offset], ntt2[a]);
+            var y = ModMath.ProductOf(ntt1[b + ntt1Offset], ntt2[b]);
 
             output[a] = ModMath.ProductOf(y, PrecomputedTables.Gammas.Span[i]) + x;
             output[b] = ModMath.ProductOf(
-                ntt1[a + offset1] + ntt1[b + offset1],
+                ntt1[a + ntt1Offset] + ntt1[b + ntt1Offset],
                 ntt2[a] + ntt2[b]) - x - y;
         }
+    }
 
+    public static void MultiplyNttsAddInto(int[] output, int[] ntt1, int[] ntt2)
+    {
+        for (var i = 0; i < KyberConstants.N >> 1; i++)
+        {
+            var a = i << 1;
+            var b = a + 1;
+
+            var x = ModMath.ProductOf(ntt1[a], ntt2[a]);
+            var y = ModMath.ProductOf(ntt1[b], ntt2[b]);
+
+            output[a] += ModMath.ProductOf(y, PrecomputedTables.Gammas.Span[i]) + x;
+            output[b] += ModMath.ProductOf(
+                ntt1[a] + ntt1[b],
+                ntt2[a] + ntt2[b]) - x - y;
+        }
+    }
+
+    public static int[] MultiplyNtts(int[] ntt1, int[] ntt2)
+    {
+        var output = new int[KyberConstants.N];
+        MultiplyNttsInto(output, ntt1, ntt2);
+        
+        return output;
+    }
+
+    public static int[] MultiplyNtts(int[] ntt1, int[] ntt2, int ntt1Offset)
+    {
+        var output = new int[KyberConstants.N];
+        MultiplyNttsInto(output, ntt1, ntt2, ntt1Offset);
+        
         return output;
     }
 
@@ -156,17 +164,13 @@ internal static class PolyMath
         for (var i = 0; i < k; i++)
         {
             result[i] = new int[KyberConstants.N];
-        }
 
-        for (var i = 0; i < k; i++)
-        {
             for (var j = 0; j < k; j++)
             {
                 var a = isTransposed ? j : i;
                 var b = isTransposed ? i : j;
 
-                var product = MultiplyNtts(matrix[a][b], vector[j]);
-                result[i] = VectorAdd(result[i], product);
+                MultiplyNttsAddInto(result[i], matrix[a][b], vector[j]);
             }
         }
 

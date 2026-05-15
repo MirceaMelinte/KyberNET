@@ -32,11 +32,10 @@ internal static class KyberAgreement
             randomnessVector[i] = Sampling.SamplePolyCBD(
                 parameter.Eta1,
                 Sampling.Prf(parameter.Eta1, randomness, (byte)i));
-            randomnessVector[i] = PolyMath.Ntt(randomnessVector[i]);
+            
+            PolyMath.Ntt(randomnessVector[i]);
 
-            constantTerm = PolyMath.VectorAdd(
-                constantTerm,
-                PolyMath.MultiplyNtts(randomnessVector[i], nttKeyVector[i]));
+            PolyMath.MultiplyNttsAddInto(constantTerm, randomnessVector[i], nttKeyVector[i]);
 
             noiseVector[i] = Sampling.SamplePolyCBD(
                 parameter.Eta2,
@@ -50,18 +49,21 @@ internal static class KyberAgreement
             }
         }
 
-        constantTerm = PolyMath.InverseNtt(constantTerm);
+        PolyMath.InverseNtt(constantTerm);
 
         var noiseTerm = Sampling.SamplePolyCBD(
             parameter.Eta2,
             Sampling.Prf(parameter.Eta2, randomness, (byte)(parameter.K * 2)));
 
-        constantTerm = PolyMath.VectorAdd(constantTerm, noiseTerm);
+        PolyMath.VectorAdd(constantTerm, noiseTerm);
+        
         Array.Clear(noiseTerm, 0, noiseTerm.Length);
 
-        var muse = Encoding.ExpandMuse(plainText);
-        constantTerm = PolyMath.VectorAdd(constantTerm, muse);
-        Array.Clear(muse, 0, muse.Length);
+        var mu = Encoding.ExpandMu(plainText);
+        
+        PolyMath.VectorAdd(constantTerm, mu);
+        
+        Array.Clear(mu, 0, mu.Length);
 
         var encodedTerms = new byte[KyberConstants.N_BYTES * parameter.Dv];
         Encoding.CompressAndEncodeInto(encodedTerms, 0, constantTerm, parameter.Dv);
@@ -71,8 +73,8 @@ internal static class KyberAgreement
 
         for (var i = 0; i < parameter.K; i++)
         {
-            coefficients[i] = PolyMath.InverseNtt(coefficients[i]);
-            coefficients[i] = PolyMath.VectorAdd(coefficients[i], noiseVector[i]);
+            PolyMath.InverseNtt(coefficients[i]);
+            PolyMath.VectorAdd(coefficients[i], noiseVector[i]);
 
             Encoding.CompressAndEncodeInto(
                 encodedCoefficients,
@@ -100,6 +102,8 @@ internal static class KyberAgreement
         Encoding.Decompress(constantTerms, parameter.Dv);
         Encoding.VectorToMontVector(constantTerms);
 
+        var subtraction = new int[KyberConstants.N];
+
         for (var i = 0; i < parameter.K; i++)
         {
             var coefficients = Encoding.FastByteDecode(
@@ -111,10 +115,10 @@ internal static class KyberAgreement
             Encoding.Decompress(coefficients, parameter.Du);
             Encoding.VectorToMontVector(coefficients);
 
-            coefficients = PolyMath.Ntt(coefficients);
+            PolyMath.Ntt(coefficients);
 
-            var subtraction = PolyMath.MultiplyNtts(secretVector, coefficients, i * KyberConstants.N);
-            subtraction = PolyMath.InverseNtt(subtraction);
+            PolyMath.MultiplyNttsInto(subtraction, secretVector, coefficients, i * KyberConstants.N);
+            PolyMath.InverseNtt(subtraction);
 
             for (var j = 0; j < KyberConstants.N; j++)
             {

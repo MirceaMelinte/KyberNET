@@ -19,7 +19,9 @@ public class PolyMathTest
             var expected = new[] { 5, 7, 9 };
 
             // Act
-            var result = PolyMath.VectorAdd(v1, v2);
+            var result = (int[])v1.Clone();
+            
+            PolyMath.VectorAdd(result, v2);
 
             // Assert
             CollectionAssert.AreEqual(expected, result);
@@ -33,7 +35,7 @@ public class PolyMathTest
             var v2 = new[] { 4, 5 };
 
             // Act & Assert
-            Assert.ThrowsExactly<IndexOutOfRangeException>(() => _ = PolyMath.VectorAdd(v1, v2));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => PolyMath.VectorAdd(v1, v2));
         }
 
         [TestMethod, TestCategory("PolyMath"), TestCategory("VectorAdd")]
@@ -45,11 +47,13 @@ public class PolyMathTest
                 new[] { 1, 2 },
                 new[] { 3, 4 }
             };
+            
             var m2 = new[]
             {
                 new[] { 5, 6 },
                 new[] { 7, 8 }
             };
+            
             var expected = new[]
             {
                 new[] { 6, 8 },
@@ -57,7 +61,9 @@ public class PolyMathTest
             };
 
             // Act
-            var result = PolyMath.VectorAdd(m1, m2);
+            var result = new[] { (int[])m1[0].Clone(), (int[])m1[1].Clone() };
+            
+            PolyMath.VectorAdd(result, m2);
 
             // Assert
             for (var i = 0; i < expected.Length; i++)
@@ -74,7 +80,7 @@ public class PolyMathTest
             var m2 = new[] { new[] { 3 } };
 
             // Act & Assert
-            Assert.ThrowsExactly<IndexOutOfRangeException>(() => _ = PolyMath.VectorAdd(m1, m2));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => PolyMath.VectorAdd(m1, m2));
         }
     }
 
@@ -133,7 +139,9 @@ public class PolyMathTest
             var zeroVector = new int[KyberConstants.N];
 
             // Act
-            var result = PolyMath.Ntt(zeroVector);
+            var result = (int[])zeroVector.Clone();
+            
+            PolyMath.Ntt(result);
 
             // Assert
             CollectionAssert.AreEqual(zeroVector, result);
@@ -151,7 +159,9 @@ public class PolyMathTest
             var zeroVector = new int[KyberConstants.N];
 
             // Act
-            var result = PolyMath.InverseNtt(zeroVector);
+            var result = (int[])zeroVector.Clone();
+            
+            PolyMath.InverseNtt(result);
 
             // Assert
             CollectionAssert.AreEqual(zeroVector, result);
@@ -168,6 +178,7 @@ public class PolyMathTest
             // Arrange
             var zeroVector = new int[KyberConstants.N];
             var someVector = new int[KyberConstants.N];
+            
             someVector[0] = 1;
 
             // Act
@@ -189,6 +200,7 @@ public class PolyMathTest
         {
             // Arrange
             var k = 3;
+            
             var zeroVector = new int[KyberConstants.N];
 
             var matrix = new int[k][][];

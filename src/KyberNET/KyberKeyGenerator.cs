@@ -90,20 +90,22 @@ public static class KyberKeyGenerator
                     parameter.Eta1,
                     Sampling.Prf(parameter.Eta1, cbdSeed, (byte)i));
 
-                secretVector[i] = PolyMath.Ntt(secretVector[i]);
+                PolyMath.Ntt(secretVector[i]);
+                
                 Encoding.ByteEncodeInto(decryptionKeyBytes, i * KyberConstants.ENCODE_SIZE, secretVector[i], 12);
 
                 noiseVector[i] = Sampling.SamplePolyCBD(
                     parameter.Eta1,
                     Sampling.Prf(parameter.Eta1, cbdSeed, (byte)(i + k)));
 
-                noiseVector[i] = PolyMath.Ntt(noiseVector[i]);
+                PolyMath.Ntt(noiseVector[i]);
             }
 
             Array.Clear(cbdSeed, 0, cbdSeed.Length);
 
             var systemVector = PolyMath.NttMatrixVectorDot(matrix, secretVector, false);
-            systemVector = PolyMath.VectorAdd(systemVector, noiseVector);
+            
+            PolyMath.VectorAdd(systemVector, noiseVector);
 
             var encryptionKeyBytes = new byte[parameter.EncryptionKeyLength - 32];
 
