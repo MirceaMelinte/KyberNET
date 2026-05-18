@@ -72,15 +72,19 @@ internal sealed class UniversalDigestor
             throw new IndexOutOfRangeException();
         }
 
-        WillItFit(length);
+        Digest(bytes.AsSpan(offset, length));
+    }
 
-        var inputIndex = offset;
-        var end = offset + length;
+    public void Digest(ReadOnlySpan<byte> bytes)
+    {
+        WillItFit(bytes.Length);
 
-        while (inputIndex < end)
+        var inputIndex = 0;
+
+        while (inputIndex < bytes.Length)
         {
-            var toCopy = Math.Min(end - inputIndex, buffer.Length - position);
-            Buffer.BlockCopy(bytes, inputIndex, buffer, position, toCopy);
+            var toCopy = Math.Min(bytes.Length - inputIndex, buffer.Length - position);
+            bytes.Slice(inputIndex, toCopy).CopyTo(buffer.AsSpan(position));
 
             inputIndex += toCopy;
             position += toCopy;

@@ -30,6 +30,12 @@ public sealed class KyberEncapsulationResult
     public byte[] SharedSecretKey => (byte[])sharedSecretKey.Clone();
 
     /// <summary>
+    /// Copies the shared secret key into the destination span.
+    /// The span must be at least 32 bytes long.
+    /// </summary>
+    public void CopySharedSecretTo(Span<byte> destination) => sharedSecretKey.AsSpan().CopyTo(destination);
+
+    /// <summary>
     /// The ciphertext to send for decapsulating.
     /// Safe to send over an insecure channel of communication.
     /// </summary>

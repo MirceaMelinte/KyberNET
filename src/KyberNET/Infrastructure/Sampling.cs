@@ -21,6 +21,22 @@ internal static class Sampling
         return shake.Digest(input);
     }
 
+    // SHAKE-256 (seed || nonce) -> caller-owned buffer
+    public static void Prf(int eta, ReadOnlySpan<byte> seed, byte nonce, Span<byte> destination)
+    {
+        var outputLength = (KyberConstants.N >> 2) * eta;
+
+        Span<byte> input = stackalloc byte[seed.Length + 1];
+        seed.CopyTo(input);
+        input[^1] = nonce;
+
+        var inStream = SHAKE256.NewInputStream();
+        inStream.Write(input);
+        var outStream = inStream.Close();
+
+        outStream.NextBytes(destination[..outputLength]);
+    }
+
     // SHAKE-128 (seed || i || j) -> byte stream
     public sealed class Shake128Stream
     {

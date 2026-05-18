@@ -12,7 +12,7 @@ internal static class Encoding
         }
     }
 
-    public static int[] FastByteDecode(byte[] bytes, int bitSize, int offset = 0, int? length = null)
+    public static int[] FastByteDecode(ReadOnlySpan<byte> bytes, int bitSize, int offset = 0, int? length = null)
     {
         var len = length ?? bytes.Length - offset;
         var result = new int[len * 8 / bitSize];
@@ -50,7 +50,7 @@ internal static class Encoding
         return result;
     }
 
-    public static void ByteEncodeInto(byte[] output, int destIndex, int[] vector, int bitSize)
+    public static void ByteEncodeInto(Span<byte> output, int destIndex, int[] vector, int bitSize)
     {
         var outputIndex = 0;
         var bitIndex = 0;
@@ -74,7 +74,7 @@ internal static class Encoding
         }
     }
 
-    public static void CompressAndEncodeInto(byte[] output, int destIndex, int[] vector, int bitSize)
+    public static void CompressAndEncodeInto(Span<byte> output, int destIndex, int[] vector, int bitSize)
     {
         var mask = 1 << bitSize;
         var outputIndex = 0;
@@ -99,7 +99,7 @@ internal static class Encoding
         }
     }
 
-    public static int[] ExpandMu(byte[] bytes)
+    public static int[] ExpandMu(ReadOnlySpan<byte> bytes)
     {
         var shorts = new int[bytes.Length * 8];
         var decompressConstant = ModMath.ToMontgomeryForm(KyberConstants.Q_HALF + 1);

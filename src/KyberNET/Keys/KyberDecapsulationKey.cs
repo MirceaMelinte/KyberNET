@@ -64,22 +64,29 @@ public sealed class KyberDecapsulationKey
         get
         {
             var output = new byte[Parameter.DecapsulationKeyLength];
-            var offset = 0;
-
-            Buffer.BlockCopy(Key.KeyBytes, 0, output, offset, Key.KeyBytes.Length);
-            offset += Key.KeyBytes.Length;
-
-            var encryptionKeyBytes = EncryptionKey.FullBytes;
-            Buffer.BlockCopy(encryptionKeyBytes, 0, output, offset, encryptionKeyBytes.Length);
-            offset += encryptionKeyBytes.Length;
-
-            Buffer.BlockCopy(Hash, 0, output, offset, Hash.Length);
-            offset += Hash.Length;
-
-            Buffer.BlockCopy(RandomSeed, 0, output, offset, RandomSeed.Length);
-
+            WriteTo(output);
             return output;
         }
+    }
+
+    /// <summary>
+    /// Writes the serialized key bytes into the destination span.
+    /// The span must be at least <see cref="KyberParameter.DecapsulationKeyLength"/> bytes long.
+    /// </summary>
+    public void WriteTo(Span<byte> destination)
+    {
+        var offset = 0;
+
+        Key.KeyBytes.AsSpan().CopyTo(destination);
+        offset += Key.KeyBytes.Length;
+
+        EncryptionKey.WriteTo(destination[offset..]);
+        offset += Parameter.EncapsulationKeyLength;
+
+        Hash.AsSpan().CopyTo(destination[offset..]);
+        offset += Hash.Length;
+
+        RandomSeed.AsSpan().CopyTo(destination[offset..]);
     }
 
     /// <summary>
@@ -91,22 +98,27 @@ public sealed class KyberDecapsulationKey
     /// Deserializes a decapsulation key from its byte representation.
     /// </summary>
     public static KyberDecapsulationKey FromBytes(byte[] bytes)
+        => FromBytes(bytes.AsSpan());
+
+    /// <summary>
+    /// Deserializes a decapsulation key from its byte representation.
+    /// </summary>
+    public static KyberDecapsulationKey FromBytes(ReadOnlySpan<byte> bytes)
     {
         var parameter = KyberParameter.FindByDecapsulationKeySize(bytes.Length);
 
-        var decryptionKeyBytes = new byte[parameter.DecryptionKeyLength];
-        Buffer.BlockCopy(bytes, 0, decryptionKeyBytes, 0, decryptionKeyBytes.Length);
-        var decryptionKey = KyberDecryptionKey.FromBytes(decryptionKeyBytes);
+        var offset = 0;
 
-        var encryptionKeyBytes = new byte[parameter.EncryptionKeyLength];
-        Buffer.BlockCopy(bytes, parameter.DecryptionKeyLength, encryptionKeyBytes, 0, encryptionKeyBytes.Length);
-        var encryptionKey = KyberEncryptionKey.FromBytes(encryptionKeyBytes);
+        var decryptionKey = KyberDecryptionKey.FromBytes(bytes[..parameter.DecryptionKeyLength]);
+        offset += parameter.DecryptionKeyLength;
 
-        var hash = new byte[KyberConstants.N_BYTES];
-        Buffer.BlockCopy(bytes, bytes.Length - (2 * KyberConstants.N_BYTES), hash, 0, KyberConstants.N_BYTES);
+        var encryptionKey = KyberEncryptionKey.FromBytes(bytes.Slice(offset, parameter.EncryptionKeyLength));
+        offset += parameter.EncryptionKeyLength;
 
-        var randomSeed = new byte[KyberConstants.N_BYTES];
-        Buffer.BlockCopy(bytes, bytes.Length - KyberConstants.N_BYTES, randomSeed, 0, KyberConstants.N_BYTES);
+        var hash = bytes.Slice(offset, KyberConstants.N_BYTES).ToArray();
+        offset += KyberConstants.N_BYTES;
+
+        var randomSeed = bytes.Slice(offset, KyberConstants.N_BYTES).ToArray();
 
         return new KyberDecapsulationKey(decryptionKey, encryptionKey, hash, randomSeed);
     }

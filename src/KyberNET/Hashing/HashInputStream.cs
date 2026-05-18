@@ -42,20 +42,19 @@ internal sealed class HashInputStream
         inputPosition = 0;
     }
 
-    private void OnAbsorb(byte[] bytes, int offset, int length)
+    private void OnAbsorb(ReadOnlySpan<byte> bytes)
     {
         if (closed)
         {
             throw new InvalidOperationException("Hash output stream already closed");
         }
 
-        var index = offset;
-        var end = offset + length;
+        var index = 0;
 
-        while (index < end)
+        while (index < bytes.Length)
         {
-            var toCopy = Math.Min(end - index, buffer.A.Length - inputPosition);
-            Buffer.BlockCopy(bytes, index, buffer.A, inputPosition, toCopy);
+            var toCopy = Math.Min(bytes.Length - index, buffer.A.Length - inputPosition);
+            bytes.Slice(index, toCopy).CopyTo(buffer.A.AsSpan(inputPosition));
 
             inputPosition += toCopy;
             index += toCopy;
@@ -79,9 +78,11 @@ internal sealed class HashInputStream
 
     public void Write(byte @byte) => OnAbsorbOne(@byte);
 
-    public void Write(byte[] bytes) => OnAbsorb(bytes, 0, bytes.Length);
+    public void Write(byte[] bytes) => OnAbsorb(bytes);
 
-    public void Write(byte[] bytes, int offset, int length) => OnAbsorb(bytes, offset, length);
+    public void Write(byte[] bytes, int offset, int length) => OnAbsorb(bytes.AsSpan(offset, length));
+
+    public void Write(ReadOnlySpan<byte> bytes) => OnAbsorb(bytes);
 
     public HashOutputStream Close()
     {

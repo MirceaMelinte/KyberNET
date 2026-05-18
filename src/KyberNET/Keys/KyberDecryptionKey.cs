@@ -31,8 +31,13 @@ internal sealed class KyberDecryptionKey
 
     public byte[] FullBytes => (byte[])KeyBytes.Clone();
 
+    public void WriteTo(Span<byte> destination) => KeyBytes.AsSpan().CopyTo(destination);
+
     public static KyberDecryptionKey FromBytes(byte[] bytes)
-        => new(KyberParameter.FindByDecryptionKeySize(bytes.Length), bytes);
+        => FromBytes(bytes.AsSpan());
+
+    public static KyberDecryptionKey FromBytes(ReadOnlySpan<byte> bytes)
+        => new(KyberParameter.FindByDecryptionKeySize(bytes.Length), bytes.ToArray());
 
     public void Dispose()
     {

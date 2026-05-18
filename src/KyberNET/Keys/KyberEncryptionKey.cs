@@ -34,23 +34,27 @@ internal sealed class KyberEncryptionKey
         get
         {
             var output = new byte[Parameter.EncapsulationKeyLength];
-
-            Buffer.BlockCopy(KeyBytes, 0, output, 0, KeyBytes.Length);
-            Buffer.BlockCopy(NttSeed, 0, output, KeyBytes.Length, NttSeed.Length);
-
+            WriteTo(output);
             return output;
         }
     }
 
+    public void WriteTo(Span<byte> destination)
+    {
+        KeyBytes.AsSpan().CopyTo(destination);
+        NttSeed.AsSpan().CopyTo(destination[KeyBytes.Length..]);
+    }
+
     public static KyberEncryptionKey FromBytes(byte[] bytes)
+        => FromBytes(bytes.AsSpan());
+
+    public static KyberEncryptionKey FromBytes(ReadOnlySpan<byte> bytes)
     {
         var keyLength = bytes.Length - KyberConstants.N_BYTES;
-        var keyBytes = new byte[keyLength];
-        var nttSeed = new byte[KyberConstants.N_BYTES];
 
-        Buffer.BlockCopy(bytes, 0, keyBytes, 0, keyLength);
-        Buffer.BlockCopy(bytes, keyLength, nttSeed, 0, KyberConstants.N_BYTES);
-
-        return new KyberEncryptionKey(KyberParameter.FindByEncryptionKeySize(bytes.Length), keyBytes, nttSeed);
+        return new KyberEncryptionKey(
+            KyberParameter.FindByEncryptionKeySize(bytes.Length),
+            bytes[..keyLength].ToArray(),
+            bytes[keyLength..].ToArray());
     }
 }

@@ -44,28 +44,38 @@ public sealed class KyberCipherText
         get
         {
             var output = new byte[Parameter.CiphertextLength];
-
-            Buffer.BlockCopy(EncodedCoefficients, 0, output, 0, EncodedCoefficients.Length);
-            Buffer.BlockCopy(EncodedTerms, 0, output, EncodedCoefficients.Length, EncodedTerms.Length);
-
+            WriteTo(output);
             return output;
         }
+    }
+
+    /// <summary>
+    /// Writes the serialized ciphertext bytes into the destination span.
+    /// The span must be at least <see cref="KyberParameter.CiphertextLength"/> bytes long.
+    /// </summary>
+    public void WriteTo(Span<byte> destination)
+    {
+        EncodedCoefficients.AsSpan().CopyTo(destination);
+        EncodedTerms.AsSpan().CopyTo(destination[EncodedCoefficients.Length..]);
     }
 
     /// <summary>
     /// Deserializes a ciphertext from byte representation
     /// </summary>
     public static KyberCipherText FromBytes(byte[] bytes)
+        => FromBytes(bytes.AsSpan());
+
+    /// <summary>
+    /// Deserializes a ciphertext from byte representation
+    /// </summary>
+    public static KyberCipherText FromBytes(ReadOnlySpan<byte> bytes)
     {
         var parameter = KyberParameter.FindByCipherTextSize(bytes.Length);
         var encodedCoefficientsSize = KyberConstants.N_BYTES * (parameter.Du * parameter.K);
 
-        var coefficients = new byte[encodedCoefficientsSize];
-        var terms = new byte[bytes.Length - encodedCoefficientsSize];
-
-        Buffer.BlockCopy(bytes, 0, coefficients, 0, encodedCoefficientsSize);
-        Buffer.BlockCopy(bytes, encodedCoefficientsSize, terms, 0, terms.Length);
-
-        return new KyberCipherText(parameter, coefficients, terms);
+        return new KyberCipherText(
+            parameter,
+            bytes[..encodedCoefficientsSize].ToArray(),
+            bytes[encodedCoefficientsSize..].ToArray());
     }
 }

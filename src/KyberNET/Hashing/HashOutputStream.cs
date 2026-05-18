@@ -97,7 +97,9 @@ internal class HashOutputStream
         return outArr;
     }
 
-    public void NextBytes(byte[] destination)
+    public void NextBytes(byte[] destination) => NextBytes(destination.AsSpan());
+
+    public void NextBytes(Span<byte> destination)
     {
         EnforceLimit(destination.Length);
 
@@ -108,7 +110,7 @@ internal class HashOutputStream
             TrySqueeze();
             var take = Math.Min(stateBuffer.A.Length - used, destination.Length - offset);
 
-            Buffer.BlockCopy(stateBuffer.A, used, destination, offset, take);
+            stateBuffer.A.AsSpan(used, take).CopyTo(destination[offset..]);
 
             used += take;
             offset += take;

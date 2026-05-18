@@ -43,6 +43,12 @@ public sealed class KyberEncapsulationKey
     public byte[] FullBytes => Key.FullBytes;
 
     /// <summary>
+    /// Writes the serialized key bytes into the destination span.
+    /// The span must be at least <see cref="KyberParameter.EncapsulationKeyLength"/> bytes long.
+    /// </summary>
+    public void WriteTo(Span<byte> destination) => Key.WriteTo(destination);
+
+    /// <summary>
     /// Performs ML-KEM encapsulation, producing a shared secret and ciphertext
     /// </summary>
     public KyberEncapsulationResult Encapsulate(IRandomProvider? randomProvider = null)
@@ -59,4 +65,9 @@ public sealed class KyberEncapsulationKey
     /// Deserializes an encapsulation key from its byte representation
     /// </summary>
     public static KyberEncapsulationKey FromBytes(byte[] bytes) => new(KyberEncryptionKey.FromBytes(bytes));
+
+    /// <summary>
+    /// Deserializes an encapsulation key from its byte representation
+    /// </summary>
+    public static KyberEncapsulationKey FromBytes(ReadOnlySpan<byte> bytes) => new(KyberEncryptionKey.FromBytes(bytes));
 }
