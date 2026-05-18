@@ -24,7 +24,7 @@ public class KyberKeyGeneratorTest
             var seed = MakeSeed(0x42);
 
             // Act
-            var pair = KyberKeyGenerator.PkeGenerator.Generate(KyberParameter.MlKem512, seed);
+            var pair = PkeKeyGenerator.Generate(KyberParameter.MlKem512, seed);
 
             // Assert
             Assert.IsNotNull(pair.EncryptionKey);
@@ -40,7 +40,7 @@ public class KyberKeyGeneratorTest
             var seed = MakeSeed(0x42);
 
             // Act
-            var pair = KyberKeyGenerator.PkeGenerator.Generate(KyberParameter.MlKem768, seed);
+            var pair = PkeKeyGenerator.Generate(KyberParameter.MlKem768, seed);
 
             // Assert
             Assert.IsNotNull(pair.EncryptionKey);
@@ -56,7 +56,7 @@ public class KyberKeyGeneratorTest
             var seed = MakeSeed(0x42);
 
             // Act
-            var pair = KyberKeyGenerator.PkeGenerator.Generate(KyberParameter.MlKem1024, seed);
+            var pair = PkeKeyGenerator.Generate(KyberParameter.MlKem1024, seed);
 
             // Assert
             Assert.IsNotNull(pair.EncryptionKey);
@@ -73,8 +73,8 @@ public class KyberKeyGeneratorTest
             var seed2 = MakeSeed(0xAB);
 
             // Act
-            var pair1 = KyberKeyGenerator.PkeGenerator.Generate(KyberParameter.MlKem768, seed1);
-            var pair2 = KyberKeyGenerator.PkeGenerator.Generate(KyberParameter.MlKem768, seed2);
+            var pair1 = PkeKeyGenerator.Generate(KyberParameter.MlKem768, seed1);
+            var pair2 = PkeKeyGenerator.Generate(KyberParameter.MlKem768, seed2);
 
             // Assert
             CollectionAssert.AreEqual(pair1.EncryptionKey.FullBytes, pair2.EncryptionKey.FullBytes);
@@ -89,8 +89,8 @@ public class KyberKeyGeneratorTest
             var seed2 = MakeSeed(0x02);
 
             // Act
-            var pair1 = KyberKeyGenerator.PkeGenerator.Generate(KyberParameter.MlKem768, seed1);
-            var pair2 = KyberKeyGenerator.PkeGenerator.Generate(KyberParameter.MlKem768, seed2);
+            var pair1 = PkeKeyGenerator.Generate(KyberParameter.MlKem768, seed1);
+            var pair2 = PkeKeyGenerator.Generate(KyberParameter.MlKem768, seed2);
 
             // Assert
             Assert.IsFalse(pair1.EncryptionKey.FullBytes.SequenceEqual(pair2.EncryptionKey.FullBytes));
@@ -101,7 +101,7 @@ public class KyberKeyGeneratorTest
         {
             // Arrange
             var seed = MakeSeed(0x55);
-            var pair = KyberKeyGenerator.PkeGenerator.Generate(KyberParameter.MlKem768, seed);
+            var pair = PkeKeyGenerator.Generate(KyberParameter.MlKem768, seed);
 
             // Act
             var reconstructed = KyberEncryptionKey.FromBytes(pair.EncryptionKey.FullBytes);
@@ -115,7 +115,7 @@ public class KyberKeyGeneratorTest
         {
             // Arrange
             var seed = MakeSeed(0x55);
-            var pair = KyberKeyGenerator.PkeGenerator.Generate(KyberParameter.MlKem768, seed);
+            var pair = PkeKeyGenerator.Generate(KyberParameter.MlKem768, seed);
 
             // Act
             var reconstructed = KyberDecryptionKey.FromBytes(pair.DecryptionKey.FullBytes);
