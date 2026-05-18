@@ -36,5 +36,7 @@ Desktop.ini
 
 .editorconfig
 
+BenchmarkDotNet.Artifacts/
+
 CLAUDE.md
 .claude/

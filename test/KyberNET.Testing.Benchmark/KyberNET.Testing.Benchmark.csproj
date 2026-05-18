@@ -5,6 +5,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="BenchmarkDotNet" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\..\src\KyberNET\KyberNET.csproj" />
     </ItemGroup>
 </Project>
