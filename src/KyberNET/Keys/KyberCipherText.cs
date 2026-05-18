@@ -6,7 +6,7 @@ using Internal;
 /// <summary>
 /// An ML-KEM ciphertext produced by encapsulation
 /// </summary>
-public sealed class KyberCipherText
+public sealed class KyberCipherText : IEquatable<KyberCipherText>
 {
     /// <summary>
     /// The ML-KEM parameter set this ciphertext belongs to
@@ -66,6 +66,62 @@ public sealed class KyberCipherText
     /// </summary>
     public byte[] Decapsulate(KyberDecapsulationKey decapsulationKey)
         => KyberAgreement.Decapsulate(decapsulationKey, this);
+
+    /// <summary>
+    /// Creates a deep copy of this ciphertext
+    /// </summary>
+    public KyberCipherText Copy()
+        => new(Parameter, EncodedCoefficients, EncodedTerms);
+
+    /// <inheritdoc />
+    public bool Equals(KyberCipherText? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return Parameter == other.Parameter
+            && EncodedCoefficients.AsSpan().SequenceEqual(other.EncodedCoefficients)
+            && EncodedTerms.AsSpan().SequenceEqual(other.EncodedTerms);
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+        => obj is KyberCipherText other && Equals(other);
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(Parameter);
+        foreach (var b in EncodedCoefficients)
+        {
+            hash.Add(b);
+        }
+        foreach (var b in EncodedTerms)
+        {
+            hash.Add(b);
+        }
+        return hash.ToHashCode();
+    }
+
+    /// <summary>
+    /// Equality operator
+    /// </summary>
+    public static bool operator ==(KyberCipherText? left, KyberCipherText? right)
+        => Equals(left, right);
+
+    /// <summary>
+    /// Inequality operator
+    /// </summary>
+    public static bool operator !=(KyberCipherText? left, KyberCipherText? right)
+        => !Equals(left, right);
 
     /// <summary>
     /// Deserializes a ciphertext from byte representation
