@@ -1,6 +1,7 @@
 namespace KyberNET.Keys;
 
 using Constants;
+using Internal;
 
 /// <summary>
 /// An ML-KEM ciphertext produced by encapsulation
@@ -58,6 +59,13 @@ public sealed class KyberCipherText
         EncodedCoefficients.AsSpan().CopyTo(destination);
         EncodedTerms.AsSpan().CopyTo(destination[EncodedCoefficients.Length..]);
     }
+
+    /// <summary>
+    /// Decapsulates this ciphertext and recovers the shared secret key.
+    /// Equivalent to <see cref="KyberDecapsulationKey.Decapsulate"/>.
+    /// </summary>
+    public byte[] Decapsulate(KyberDecapsulationKey decapsulationKey)
+        => KyberAgreement.Decapsulate(decapsulationKey, this);
 
     /// <summary>
     /// Deserializes a ciphertext from byte representation
